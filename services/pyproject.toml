@@ -1,2 +1,2 @@
 [tool.uv.workspace]
-members = ["data_structures", "data_processing", "data_access"]
+members = ["data_structures", "data_processing", "data_access", "configuration"]
