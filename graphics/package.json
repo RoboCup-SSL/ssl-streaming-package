@@ -1,0 +1,48 @@
+{
+  "name": "obs-stinger",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "remotion studio",
+    "render": "remotion render Stinger out/stinger.webm --codec=vp9 --image-format=png --scale=0.5",
+    "render:preview": "remotion render Stinger out/stinger-preview.webm --codec=vp9 --image-format=png --scale=0.25",
+    "render:chase": "remotion render ChaseStinger out/chase-stinger.webm --codec=vp9 --image-format=png --scale=0.5",
+    "render:chase:preview": "remotion render ChaseStinger out/chase-stinger-preview.webm --codec=vp9 --image-format=png --scale=0.25",
+    "render:replay-overlay": "remotion render ReplayOverlay out/replay-overlay.webm --codec=vp9 --image-format=png --scale=0.5",
+    "render:replay-overlay:preview": "remotion render ReplayOverlay out/replay-overlay-preview.webm --codec=vp9 --image-format=png --scale=0.25",
+    "render:replay-rewind": "remotion render ReplayRewindStinger out/replay-rewind.webm --codec=vp9 --image-format=png --scale=0.5",
+    "render:replay-rewind:preview": "remotion render ReplayRewindStinger out/replay-rewind-preview.webm --codec=vp9 --image-format=png --scale=0.25",
+    "render:replay-resume": "remotion render ReplayResumeStinger out/replay-resume.webm --codec=vp9 --image-format=png --scale=0.5",
+    "render:replay-resume:preview": "remotion render ReplayResumeStinger out/replay-resume-preview.webm --codec=vp9 --image-format=png --scale=0.25",
+    "render:bg": "remotion render BreathingBackground out/breathing-background.mp4 --codec=h264 --pixel-format=yuv420p --image-format=png",
+    "render:bg:preview": "remotion render BreathingBackground out/breathing-background-preview.mp4 --codec=h264 --pixel-format=yuv420p --image-format=png --scale=0.5",
+    "render:next-match": "remotion still NextMatch out/next-match.png --frame=0",
+    "render:standby": "remotion render Standby out/standby.mp4 --codec=h264 --pixel-format=yuv420p --image-format=png",
+    "render:standby:preview": "remotion render Standby out/standby-preview.mp4 --codec=h264 --pixel-format=yuv420p --image-format=png --scale=0.5",
+    "test": "vitest run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "overrides": {
+    "electron-to-chromium": "1.5.362",
+    "terser-webpack-plugin": "5.6.0",
+    "enhanced-resolve": "5.22.0",
+    "zod": "4.3.6",
+    "tinyexec": "1.0.2"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.464",
+    "@remotion/zod-types": "^4.0.464",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "remotion": "^4.0.464",
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.7"
+  }
+}

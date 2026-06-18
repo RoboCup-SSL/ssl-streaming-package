@@ -1,0 +1,595 @@
+{
+  "schedule": [
+    {
+      "id": "2026-07-02-A-1",
+      "day": "2026-07-02",
+      "division": "A",
+      "field": "A",
+      "time": "08:30",
+      "label": "G1",
+      "teamA": "TIGERs",
+      "teamB": "Ri-one"
+    },
+    {
+      "id": "2026-07-02-A-2",
+      "day": "2026-07-02",
+      "division": "A",
+      "field": "A",
+      "time": "10:00",
+      "label": "G2",
+      "teamA": "ZJUNLict",
+      "teamB": "LUHBots"
+    },
+    {
+      "id": "2026-07-02-A-3",
+      "day": "2026-07-02",
+      "division": "A",
+      "field": "A",
+      "time": "11:30",
+      "label": "G1",
+      "teamA": "TIGERs",
+      "teamB": "ER-Force"
+    },
+    {
+      "id": "2026-07-02-A-4",
+      "day": "2026-07-02",
+      "division": "A",
+      "field": "A",
+      "time": "13:00",
+      "label": "G2",
+      "teamA": "ZJUNLict",
+      "teamB": "RoboCin"
+    },
+    {
+      "id": "2026-07-02-A-5",
+      "day": "2026-07-02",
+      "division": "A",
+      "field": "A",
+      "time": "16:00",
+      "label": "G1",
+      "teamA": "RoboDragons",
+      "teamB": "Ri-one"
+    },
+    {
+      "id": "2026-07-02-A-6",
+      "day": "2026-07-02",
+      "division": "A",
+      "field": "A",
+      "time": "17:30",
+      "label": "G2",
+      "teamA": "KIKS",
+      "teamB": "LUHBots"
+    },
+    {
+      "id": "2026-07-02-A-7",
+      "day": "2026-07-02",
+      "division": "A",
+      "field": "A",
+      "time": "19:00",
+      "label": "G1",
+      "teamA": "RoboDragons",
+      "teamB": "ER-Force"
+    },
+    {
+      "id": "2026-07-02-A-8",
+      "day": "2026-07-02",
+      "division": "A",
+      "field": "A",
+      "time": "20:30",
+      "label": "G2",
+      "teamA": "KIKS",
+      "teamB": "RoboCin"
+    },
+    {
+      "id": "2026-07-02-B0-1",
+      "day": "2026-07-02",
+      "division": "B",
+      "field": "B0",
+      "time": "08:30",
+      "label": "G1",
+      "teamA": "The Bots",
+      "teamB": "GreenTea"
+    },
+    {
+      "id": "2026-07-02-B0-2",
+      "day": "2026-07-02",
+      "division": "B",
+      "field": "B0",
+      "time": "10:30",
+      "label": "G3",
+      "teamA": "Warthog Robotics",
+      "teamB": "Traps"
+    },
+    {
+      "id": "2026-07-02-B0-3",
+      "day": "2026-07-02",
+      "division": "B",
+      "field": "B0",
+      "time": "12:00",
+      "label": "G1",
+      "teamA": "The Bots",
+      "teamB": "TritonBots"
+    },
+    {
+      "id": "2026-07-02-B0-4",
+      "day": "2026-07-02",
+      "division": "B",
+      "field": "B0",
+      "time": "13:30",
+      "label": "G1",
+      "teamA": "Delft Mercurians",
+      "teamB": "GreenTea"
+    },
+    {
+      "id": "2026-07-02-B0-5",
+      "day": "2026-07-02",
+      "division": "B",
+      "field": "B0",
+      "time": "16:30",
+      "label": "G3",
+      "teamA": "The A-Team",
+      "teamB": "Traps"
+    },
+    {
+      "id": "2026-07-02-B0-6",
+      "day": "2026-07-02",
+      "division": "B",
+      "field": "B0",
+      "time": "18:00",
+      "label": "G1",
+      "teamA": "Delft Mercurians",
+      "teamB": "TritonBots"
+    },
+    {
+      "id": "2026-07-02-B1-1",
+      "day": "2026-07-02",
+      "division": "B",
+      "field": "B1",
+      "time": "08:30",
+      "label": "G2",
+      "teamA": "RoboJackets",
+      "teamB": "RCJ SSL Team"
+    },
+    {
+      "id": "2026-07-02-B1-2",
+      "day": "2026-07-02",
+      "division": "B",
+      "field": "B1",
+      "time": "10:00",
+      "label": "G4",
+      "teamA": "ITAndroids",
+      "teamB": "SeeGoals"
+    },
+    {
+      "id": "2026-07-02-B1-3",
+      "day": "2026-07-02",
+      "division": "B",
+      "field": "B1",
+      "time": "11:30",
+      "label": "G2",
+      "teamA": "RoboJackets",
+      "teamB": "TurtleRabbit"
+    },
+    {
+      "id": "2026-07-02-B1-4",
+      "day": "2026-07-02",
+      "division": "B",
+      "field": "B1",
+      "time": "13:00",
+      "label": "G2",
+      "teamA": "NAMeC",
+      "teamB": "RCJ SSL Team"
+    },
+    {
+      "id": "2026-07-02-B1-5",
+      "day": "2026-07-02",
+      "division": "B",
+      "field": "B1",
+      "time": "16:00",
+      "label": "G4",
+      "teamA": "UBC Thunderbots",
+      "teamB": "SeeGoals"
+    },
+    {
+      "id": "2026-07-02-B1-6",
+      "day": "2026-07-02",
+      "division": "B",
+      "field": "B1",
+      "time": "17:30",
+      "label": "G2",
+      "teamA": "NAMeC",
+      "teamB": "TurtleRabbit"
+    },
+    {
+      "id": "2026-07-03-A-1",
+      "day": "2026-07-03",
+      "division": "A",
+      "field": "A",
+      "time": "08:30",
+      "label": "G1",
+      "teamA": "ER-Force",
+      "teamB": "Ri-one"
+    },
+    {
+      "id": "2026-07-03-A-2",
+      "day": "2026-07-03",
+      "division": "A",
+      "field": "A",
+      "time": "10:00",
+      "label": "G2",
+      "teamA": "RoboCin",
+      "teamB": "LUHBots"
+    },
+    {
+      "id": "2026-07-03-A-3",
+      "day": "2026-07-03",
+      "division": "A",
+      "field": "A",
+      "time": "11:30",
+      "label": "G1",
+      "teamA": "TIGERs",
+      "teamB": "RoboDragons"
+    },
+    {
+      "id": "2026-07-03-A-4",
+      "day": "2026-07-03",
+      "division": "A",
+      "field": "A",
+      "time": "13:00",
+      "label": "G2",
+      "teamA": "ZJUNLict",
+      "teamB": "KIKS"
+    },
+    {
+      "id": "2026-07-03-A-5",
+      "day": "2026-07-03",
+      "division": "A",
+      "field": "A",
+      "time": "15:00",
+      "label": "Upper 1",
+      "teamA": "G2.3",
+      "teamB": "G1.2"
+    },
+    {
+      "id": "2026-07-03-A-6",
+      "day": "2026-07-03",
+      "division": "A",
+      "field": "A",
+      "time": "16:30",
+      "label": "Upper 2",
+      "teamA": "G1.3",
+      "teamB": "G2.2"
+    },
+    {
+      "id": "2026-07-03-A-7",
+      "day": "2026-07-03",
+      "division": "A",
+      "field": "A",
+      "time": "18:00",
+      "label": "Low 1.1",
+      "teamA": "LU1",
+      "teamB": "G1.4"
+    },
+    {
+      "id": "2026-07-03-A-8",
+      "day": "2026-07-03",
+      "division": "A",
+      "field": "A",
+      "time": "19:30",
+      "label": "Low 1.2",
+      "teamA": "LU2",
+      "teamB": "G2.4"
+    },
+    {
+      "id": "2026-07-03-B0-1",
+      "day": "2026-07-03",
+      "division": "B",
+      "field": "B0",
+      "time": "08:30",
+      "label": "G1",
+      "teamA": "TritonBots",
+      "teamB": "GreenTea"
+    },
+    {
+      "id": "2026-07-03-B0-2",
+      "day": "2026-07-03",
+      "division": "B",
+      "field": "B0",
+      "time": "10:30",
+      "label": "G1",
+      "teamA": "The Bots",
+      "teamB": "Delft Mercurians"
+    },
+    {
+      "id": "2026-07-03-B0-3",
+      "day": "2026-07-03",
+      "division": "B",
+      "field": "B0",
+      "time": "12:00",
+      "label": "G3",
+      "teamA": "Warthog Robotics",
+      "teamB": "The A-Team"
+    },
+    {
+      "id": "2026-07-03-B0-4",
+      "day": "2026-07-03",
+      "division": "B",
+      "field": "B0",
+      "time": "14:00",
+      "label": "LL1",
+      "teamA": "G1.2",
+      "teamB": "G2.3"
+    },
+    {
+      "id": "2026-07-03-B0-5",
+      "day": "2026-07-03",
+      "division": "B",
+      "field": "B0",
+      "time": "15:30",
+      "label": "LL2",
+      "teamA": "G4.3",
+      "teamB": "G3.2"
+    },
+    {
+      "id": "2026-07-03-B0-6",
+      "day": "2026-07-03",
+      "division": "B",
+      "field": "B0",
+      "time": "17:30",
+      "label": "Upper 1",
+      "teamA": "G3.1",
+      "teamB": "LL1"
+    },
+    {
+      "id": "2026-07-03-B1-1",
+      "day": "2026-07-03",
+      "division": "B",
+      "field": "B1",
+      "time": "08:30",
+      "label": "G2",
+      "teamA": "TurtleRabbit",
+      "teamB": "RCJ SSL Team"
+    },
+    {
+      "id": "2026-07-03-B1-2",
+      "day": "2026-07-03",
+      "division": "B",
+      "field": "B1",
+      "time": "10:00",
+      "label": "G2",
+      "teamA": "RoboJackets",
+      "teamB": "NAMeC"
+    },
+    {
+      "id": "2026-07-03-B1-3",
+      "day": "2026-07-03",
+      "division": "B",
+      "field": "B1",
+      "time": "11:30",
+      "label": "G4",
+      "teamA": "ITAndroids",
+      "teamB": "UBC Thunderbots"
+    },
+    {
+      "id": "2026-07-03-B1-4",
+      "day": "2026-07-03",
+      "division": "B",
+      "field": "B1",
+      "time": "13:30",
+      "label": "LL2",
+      "teamA": "G2.2",
+      "teamB": "G1.3"
+    },
+    {
+      "id": "2026-07-03-B1-5",
+      "day": "2026-07-03",
+      "division": "B",
+      "field": "B1",
+      "time": "15:00",
+      "label": "LL4",
+      "teamA": "G4.2",
+      "teamB": "G3.3"
+    },
+    {
+      "id": "2026-07-03-B1-6",
+      "day": "2026-07-03",
+      "division": "B",
+      "field": "B1",
+      "time": "17:00",
+      "label": "Upper 2",
+      "teamA": "G4.1",
+      "teamB": "LL2"
+    },
+    {
+      "id": "2026-07-04-A-1",
+      "day": "2026-07-04",
+      "division": "A",
+      "field": "A",
+      "time": "08:30",
+      "label": "Upper 3",
+      "teamA": "WU1",
+      "teamB": "G2.1"
+    },
+    {
+      "id": "2026-07-04-A-2",
+      "day": "2026-07-04",
+      "division": "A",
+      "field": "A",
+      "time": "10:30",
+      "label": "Upper 4",
+      "teamA": "WU2",
+      "teamB": "G1.1"
+    },
+    {
+      "id": "2026-07-04-A-3",
+      "day": "2026-07-04",
+      "division": "A",
+      "field": "A",
+      "time": "12:00",
+      "label": "Low 2.1",
+      "teamA": "WL1.2",
+      "teamB": "LU3"
+    },
+    {
+      "id": "2026-07-04-A-4",
+      "day": "2026-07-04",
+      "division": "A",
+      "field": "A",
+      "time": "13:30",
+      "label": "Low 2.2",
+      "teamA": "WL1.1",
+      "teamB": "LU4"
+    },
+    {
+      "id": "2026-07-04-A-5",
+      "day": "2026-07-04",
+      "division": "A",
+      "field": "A",
+      "time": "15:30",
+      "label": "Upper Final",
+      "teamA": "WU1.1",
+      "teamB": "WU1.2"
+    },
+    {
+      "id": "2026-07-04-A-6",
+      "day": "2026-07-04",
+      "division": "A",
+      "field": "A",
+      "time": "17:00",
+      "label": "Low 3",
+      "teamA": "WL2.1",
+      "teamB": "WL2.2"
+    },
+    {
+      "id": "2026-07-04-B0-1",
+      "day": "2026-07-04",
+      "division": "B",
+      "field": "B0",
+      "time": "08:30",
+      "label": "Low 1.1",
+      "teamA": "LU1",
+      "teamB": "LL3"
+    },
+    {
+      "id": "2026-07-04-B0-2",
+      "day": "2026-07-04",
+      "division": "B",
+      "field": "B0",
+      "time": "10:00",
+      "label": "Upper 3",
+      "teamA": "WU1",
+      "teamB": "G2.1"
+    },
+    {
+      "id": "2026-07-04-B0-3",
+      "day": "2026-07-04",
+      "division": "B",
+      "field": "B0",
+      "time": "11:30",
+      "label": "Low 2.1",
+      "teamA": "WL1.2",
+      "teamB": "LU3"
+    },
+    {
+      "id": "2026-07-04-B0-4",
+      "day": "2026-07-04",
+      "division": "B",
+      "field": "B0",
+      "time": "13:00",
+      "label": "Low 2.2",
+      "teamA": "WL1.1",
+      "teamB": "LU4"
+    },
+    {
+      "id": "2026-07-04-B0-5",
+      "day": "2026-07-04",
+      "division": "B",
+      "field": "B0",
+      "time": "16:00",
+      "label": "Upper Final",
+      "teamA": "WU3",
+      "teamB": "WU4"
+    },
+    {
+      "id": "2026-07-04-B0-6",
+      "day": "2026-07-04",
+      "division": "B",
+      "field": "B0",
+      "time": "17:30",
+      "label": "Low 3",
+      "teamA": "WL2.1",
+      "teamB": "WL2.2"
+    },
+    {
+      "id": "2026-07-04-B1-1",
+      "day": "2026-07-04",
+      "division": "B",
+      "field": "B1",
+      "time": "08:30",
+      "label": "Low 1.2",
+      "teamA": "LU2",
+      "teamB": "LL4"
+    },
+    {
+      "id": "2026-07-04-B1-2",
+      "day": "2026-07-04",
+      "division": "B",
+      "field": "B1",
+      "time": "10:30",
+      "label": "Upper 4",
+      "teamA": "WU2",
+      "teamB": "G1.1"
+    },
+    {
+      "id": "2026-07-05-A-1",
+      "day": "2026-07-05",
+      "division": "A",
+      "field": "A",
+      "time": "09:30",
+      "label": "Lower Final",
+      "teamA": "LUF",
+      "teamB": "WL3"
+    },
+    {
+      "id": "2026-07-05-A-2",
+      "day": "2026-07-05",
+      "division": "A",
+      "field": "A",
+      "time": "12:00",
+      "label": "Grand Final",
+      "teamA": "WLF",
+      "teamB": "WUF"
+    },
+    {
+      "id": "2026-07-05-B0-1",
+      "day": "2026-07-05",
+      "division": "B",
+      "field": "B0",
+      "time": "08:30",
+      "label": "Lower Final",
+      "teamA": "LUF",
+      "teamB": "WL3"
+    },
+    {
+      "id": "2026-07-05-B0-2",
+      "day": "2026-07-05",
+      "division": "B",
+      "field": "B0",
+      "time": "11:00",
+      "label": "Grand Final",
+      "teamA": "WLF",
+      "teamB": "WUF"
+    }
+  ],
+  "live": {
+    "A": {
+      "currentId": "2026-07-02-A-1"
+    },
+    "B0": {
+      "currentId": "2026-07-02-B0-1"
+    },
+    "B1": {
+      "currentId": "2026-07-02-B1-1"
+    }
+  }
+}

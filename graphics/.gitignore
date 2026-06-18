@@ -1,0 +1,7 @@
+node_modules/
+out/
+.DS_Store
+
+# Large scratch/render archives — keep out of git
+*.zip
+media_package/
