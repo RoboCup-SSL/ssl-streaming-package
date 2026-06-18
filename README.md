@@ -13,7 +13,7 @@ clean, watchable, shareable stream with minimal setup and little room to get thi
 ## Status & roadmap
 
 Early scaffolding. The project ships in incremental MVPs, each delivering standalone value.
-See [`docs/mvp-direction.md`](docs/mvp-direction.md) for the full rationale.
+See [`MVP.md`](MVP.md) for the full rationale.
 
 | Milestone | Theme | Scope |
 |---|---|---|
