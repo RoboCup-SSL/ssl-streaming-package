@@ -1,47 +1,43 @@
-# Live match data server
+# obs-live-data
 
-Serves per-field "now / next / countdown" JSON for the RoboCup 2026 SSL broadcast.
-OBS pulls it with the **obs-urlsource** plugin and renders it as native text. You drive
-it by editing one file — no clock guessing, no scene automation.
+The per-field app that pushes live match text into OBS — team names, score, and match stage
+from the Game Controller, plus next-up / countdown from the schedule — with no manual typing.
 
-## Run (on ONE machine — the others reach it over the LAN)
+**One instance per field.** It is event-driven: it listens to the GC `Referee` multicast feed
+and pushes updates to OBS over **obs-websocket** (`simpleobsws`) the moment they change. No HTTP
+server, no `obs-urlsource` plugin, no polling.
+
+## Run
 
 ```bash
-pip install -r requirements.txt
-python import_schedule.py                # (re)build data/schedule.json from data/schedule.md
-PORT=8000 python app.py                  # binds 0.0.0.0:8000
+cp field.toml.example field.toml          # then edit: OBS url/password, source names, GC address
+uv run python import_schedule.py          # (re)build data/schedule.json from data/schedule.md
+uv run python -m obs_live_data field.toml
 ```
 
-Endpoints: `GET /field/A`, `/field/B0`, `/field/B1`, `/health`.
+`field.toml` is the single per-field config (see `field.toml.example`): `[field].name`,
+`[game_controller]` multicast address/port, `[obs]` url/password + the `[obs.sources]`
+name-map (which OBS text source shows each value), and `[schedule].path`.
 
-## Driving it during the stream
+## OBS setup per field
 
-Edit `data/schedule.json` → `live.<field>.currentId` to the id of the match now on that
-field; save. The server hot-reloads on save (no restart). Optional per-field overrides:
-- `nextId` — force which match counts as "next".
-- `nextStartsAt` — explicit ISO time for the countdown (e.g. `"2026-07-02T10:15"`) when a
-  match is running late.
+In OBS (28+, obs-websocket enabled): create one **Text** source per value you want shown
+(score, stage, team names, next-up, countdown) and put each source's name in `[obs.sources]`.
+The app sets each source's text as updates arrive. On Linux the FreeType2 text source's
+setting key is `text` (the default `text_field`).
 
-Divisions: Field A = Division A; Fields B0 + B1 = Division B. Group labels and playoff
-codes repeat across divisions — that's expected; matches are keyed by field.
+## Driving the schedule during the stream
 
-## Per-PC OBS setup checklist (for distributing the scene collection)
+Edit `data/schedule.json` → `live.<field>.currentId` to the id of the match now on that field;
+save. The reader serves the last good copy if it catches a mid-edit save. Optional per-field
+overrides: `nextId` (force which match is "next") and `nextStartsAt` (explicit ISO countdown
+target when running late).
 
-The Scene Collection export carries the urlsource URLs, text styling, and image/media
-sources, but each target PC must have:
+## Tests
 
-1. **obs-urlsource plugin installed** (https://github.com/royshil/obs-urlsource) — the
-   collection references it; without it those text sources show as missing.
-2. **Asset files at the SAME absolute path** on every PC (OBS stores absolute paths):
-   keep `next-match.png`, `breathing-background.mp4`, `standby.mp4` in an identical folder
-   (e.g. `C:\robocup\assets\`). Install the **brand font** on every PC or text falls back.
-3. The urlsource URLs point at the **server's fixed LAN IP/hostname**, NOT `localhost`
-   (e.g. `http://192.168.1.50:8000/field/A`) — so every PC pulls from the one shared file.
+```bash
+uv run pytest        # from the services/ workspace root
+```
 
-### Wiring one field's text in OBS
-
-Add an **obs-urlsource** source → URL `http://<server>:8000/field/A` → refresh every
-1–2 s → output type **Text**, extract a JSON pointer (e.g. `now.matchup`, `next.matchup`,
-or `countdown`) → style with the brand font. Repeat per field / per string you want; place
-over the `NextMatch` slot / lower-third. The plugin's output template can also combine
-fields, e.g. `NEXT: {next.matchup} — {countdown}`.
+No real OBS or network is needed: a `FakeRefereeSource` drives the loop and a recording stub
+stands in for OBS.

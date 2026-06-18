@@ -1,0 +1,23 @@
+[field]
+name = "A"
+
+[game_controller]
+address = "224.5.23.1"
+port = 10003
+
+[obs]
+url = "ws://localhost:4455"
+password = "change-me"
+text_field = "text"   # FreeType2 text source on Linux uses "text"
+
+[obs.sources]
+blue_name = "txt_blue_name"
+blue_score = "txt_blue_score"
+yellow_name = "txt_yellow_name"
+yellow_score = "txt_yellow_score"
+stage = "txt_stage"
+next_match = "txt_next_match"
+countdown = "txt_countdown"
+
+[schedule]
+path = "data/schedule.json"

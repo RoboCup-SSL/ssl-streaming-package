@@ -21,7 +21,8 @@ How to get the whole package running on a streaming PC. Audience: whoever sets u
 1. Install OBS + Node + Python.
 2. Render / fetch the graphics from `graphics/`.
 3. Import the `obs-template/` scene collection into OBS; point it at the rendered graphics.
-4. Run `services/obs-live-data/` and wire OBS's `obs-urlsource` text to it.
+4. Configure and run `services/obs-live-data/` (`cp field.toml.example field.toml`, edit, then
+   `uv run python -m obs_live_data field.toml`); it pushes live text to OBS over obs-websocket.
 5. (MVP2) Run `services/obs-controller/` for unattended operation.
 
 For *operating* a match once installed, see the [operator handbook](handbook/).
