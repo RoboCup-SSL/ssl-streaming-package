@@ -1,0 +1,21 @@
+[project]
+name = "obs-live-data"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["configuration", "data-access", "data-processing", "data-structures"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.23"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[tool.uv.sources]
+configuration = { workspace = true }
+data-access = { workspace = true }
+data-processing = { workspace = true }
+data-structures = { workspace = true }
