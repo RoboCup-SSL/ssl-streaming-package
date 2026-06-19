@@ -1,7 +1,14 @@
 import os
 
+from data_access.staging import stage_logos
 from data_processing.format import format_updates
 from data_processing.logo import logo_filename
+
+
+def effective_logos_dir(logos_dir: str, stage_dir: str) -> str:
+    """The logo dir to send paths from. When stage_dir is set, copy the logos
+    there first so paths line up with a mirror on a remote OBS machine."""
+    return stage_logos(logos_dir, stage_dir) if stage_dir else logos_dir
 
 
 def _logo_path(team_name: str, logos_dir: str) -> str:

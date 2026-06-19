@@ -10,6 +10,9 @@ url = "ws://localhost:4455"
 password = "change-me"
 text_field = "text"   # FreeType2 text source on Linux uses "text"
 logos_dir = "logos"   # bundled team logos; path is resolved on the OBS machine
+# stage_dir: if set, logos are copied here on startup and paths are sent from here.
+# For a remote OBS, set the same path on both machines and mirror the folder there.
+stage_dir = "/tmp/ssl-logos"
 
 [obs.sources]   # logical field -> OBS Text source name
 blue_name = "txt_blue_name"

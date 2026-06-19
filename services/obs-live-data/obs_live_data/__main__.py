@@ -8,7 +8,7 @@ from data_access.gc import MulticastRefereeSource
 from data_access.obs import ObsText
 from data_processing.decode import decode_referee
 
-from obs_live_data.app import run_referee
+from obs_live_data.app import effective_logos_dir, run_referee
 
 
 def build_source(gc: GameControllerConfig) -> MulticastRefereeSource:
@@ -23,9 +23,10 @@ async def main(config_path: str) -> None:
     obs = ObsText(ws, text_field=config.obs.text_field)
     source = build_source(config.game_controller)
     await source.start()
+    logos_dir = effective_logos_dir(config.obs.logos_dir, config.obs.stage_dir)
     try:
         await run_referee(
-            source, obs, config.obs.sources, config.obs.images, config.obs.logos_dir
+            source, obs, config.obs.sources, config.obs.images, logos_dir
         )
     finally:
         await ws.disconnect()

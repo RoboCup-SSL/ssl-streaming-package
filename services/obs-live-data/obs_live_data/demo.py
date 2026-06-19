@@ -13,7 +13,7 @@ from data_access.obs import ObsText
 from data_structures.domain import MatchState, Team
 from data_structures.enums import Command, Stage
 
-from obs_live_data.app import run_referee
+from obs_live_data.app import effective_logos_dir, run_referee
 
 
 def _state(stage: Stage, blue: int, yellow: int, command: Command) -> MatchState:
@@ -50,10 +50,11 @@ async def main(config_path: str) -> None:
     await ws.wait_until_identified()
     print("Connected. Playing scripted match (watch your OBS text sources):")
     obs = _VerboseObs(ws, text_field=config.obs.text_field)
+    logos_dir = effective_logos_dir(config.obs.logos_dir, config.obs.stage_dir)
     try:
         await run_referee(
             FakeRefereeSource(SCRIPT), obs, config.obs.sources,
-            config.obs.images, config.obs.logos_dir,
+            config.obs.images, logos_dir,
         )
     finally:
         await ws.disconnect()

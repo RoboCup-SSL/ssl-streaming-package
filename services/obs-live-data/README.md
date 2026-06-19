@@ -29,7 +29,15 @@ setting key is `text` (the default `text_field`).
 For team logos, create an **Image** source per team and map them in `[obs.images]`
 (`blue_logo`, `yellow_logo`). On each update the app sets that source's `file` to the logo
 matching the team name. **The path resolves on the OBS machine** — so when OBS and this app
-run on separate boxes, the `logos_dir` must exist on the OBS box; co-located is the simple case.
+run on separate boxes, the logo folder must exist at the same path on the OBS box; co-located
+is the simple case.
+
+### Remote-OBS testing (`stage_dir`)
+
+When OBS runs on a different machine, set `stage_dir` (e.g. `/tmp/ssl-logos`) in `[obs]`. On
+startup the app copies the bundled logos there and sends paths from it. Mirror the same folder
+on the OBS machine (copy `logos/` into `/tmp/ssl-logos` there) so the absolute paths line up.
+Leave `stage_dir` empty for co-located deploys.
 
 ### Team logos
 

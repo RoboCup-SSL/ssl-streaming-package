@@ -14,4 +14,5 @@ class ObsConfig:
     sources: dict[str, str] = field(default_factory=dict)
     images: dict[str, str] = field(default_factory=dict)
     logos_dir: str = "logos"
+    stage_dir: str = ""
     text_field: str = "text"
