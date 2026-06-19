@@ -18,19 +18,27 @@ from data_structures.enums import Command, Stage
 from obs_live_data.app import effective_logos_dir, run_referee
 
 
-def _state(stage: Stage, blue: int, yellow: int, command: Command) -> MatchState:
-    return MatchState(stage, command, Team("ER-Force", blue, 0), Team("TIGERs", yellow, 0))
+# Team names match logo files in logos/ (lowercased, spaces -> hyphens).
+MATCH_1 = ("ER-Force", "TIGERs Mannheim")
+MATCH_2 = ("ZJUNlict", "RoboTeam Twente")
 
 
-# (delay seconds before this state, state)
+def _state(stage: Stage, blue: int, yellow: int, command: Command, teams) -> MatchState:
+    blue_name, yellow_name = teams
+    return MatchState(stage, command, Team(blue_name, blue, 0), Team(yellow_name, yellow, 0))
+
+
+# (delay seconds before this state, state) — two matchups so names + logos swap halfway.
 SCRIPT = [
-    (0.0, _state(Stage.NORMAL_FIRST_HALF_PRE, 0, 0, Command.HALT)),
-    (3.0, _state(Stage.NORMAL_FIRST_HALF, 0, 0, Command.NORMAL_START)),
-    (3.0, _state(Stage.NORMAL_FIRST_HALF, 1, 0, Command.GOAL_BLUE)),
-    (3.0, _state(Stage.NORMAL_FIRST_HALF, 1, 1, Command.GOAL_YELLOW)),
-    (3.0, _state(Stage.NORMAL_HALF_TIME, 1, 1, Command.HALT)),
-    (3.0, _state(Stage.NORMAL_SECOND_HALF, 2, 1, Command.GOAL_BLUE)),
-    (3.0, _state(Stage.POST_GAME, 2, 1, Command.HALT)),
+    (0.0, _state(Stage.NORMAL_FIRST_HALF_PRE, 0, 0, Command.HALT, MATCH_1)),
+    (3.0, _state(Stage.NORMAL_FIRST_HALF, 0, 0, Command.NORMAL_START, MATCH_1)),
+    (3.0, _state(Stage.NORMAL_FIRST_HALF, 1, 0, Command.GOAL_BLUE, MATCH_1)),
+    (3.0, _state(Stage.NORMAL_HALF_TIME, 1, 0, Command.HALT, MATCH_1)),
+    # --- new match: different teams (watch names + logos swap) ---
+    (3.0, _state(Stage.NORMAL_FIRST_HALF_PRE, 0, 0, Command.HALT, MATCH_2)),
+    (3.0, _state(Stage.NORMAL_FIRST_HALF, 0, 0, Command.NORMAL_START, MATCH_2)),
+    (3.0, _state(Stage.NORMAL_FIRST_HALF, 0, 1, Command.GOAL_YELLOW, MATCH_2)),
+    (3.0, _state(Stage.POST_GAME, 0, 1, Command.HALT, MATCH_2)),
 ]
 
 
