@@ -16,9 +16,14 @@ port = 10003
 url = "ws://localhost:4455"
 password = "secret"
 
+logos_dir = "logos"
+
 [obs.sources]
 blue_name = "txt_blue"
 stage = "txt_stage"
+
+[obs.images]
+blue_logo = "img_blue"
 
 [schedule]
 path = "data/schedule.json"
@@ -28,4 +33,6 @@ path = "data/schedule.json"
     assert cfg.name == "A"
     assert cfg.game_controller.port == 10003
     assert cfg.obs.sources["blue_name"] == "txt_blue"
+    assert cfg.obs.images["blue_logo"] == "img_blue"
+    assert cfg.obs.logos_dir == "logos"
     assert cfg.schedule.path == "data/schedule.json"

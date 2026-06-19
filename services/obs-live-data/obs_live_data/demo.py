@@ -34,8 +34,12 @@ SCRIPT = [
 
 class _VerboseObs(ObsText):
     async def set_text(self, source_name: str, value: str) -> None:
-        print(f"  OBS <- {source_name}: {value!r}")
+        print(f"  OBS text  <- {source_name}: {value!r}")
         await super().set_text(source_name, value)
+
+    async def set_image(self, source_name: str, path: str) -> None:
+        print(f"  OBS image <- {source_name}: {path}")
+        await super().set_image(source_name, path)
 
 
 async def main(config_path: str) -> None:
@@ -47,7 +51,10 @@ async def main(config_path: str) -> None:
     print("Connected. Playing scripted match (watch your OBS text sources):")
     obs = _VerboseObs(ws, text_field=config.obs.text_field)
     try:
-        await run_referee(FakeRefereeSource(SCRIPT), obs, config.obs.sources)
+        await run_referee(
+            FakeRefereeSource(SCRIPT), obs, config.obs.sources,
+            config.obs.images, config.obs.logos_dir,
+        )
     finally:
         await ws.disconnect()
     print("Done.")

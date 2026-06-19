@@ -20,3 +20,14 @@ async def test_set_text_issues_setinputsettings():
         ("SetInputSettings",
          {"inputName": "txt_blue", "inputSettings": {"text": "ER-Force"}}),
     ]
+
+
+@pytest.mark.asyncio
+async def test_set_image_issues_setinputsettings_with_file():
+    client = RecordingClient()
+    obs = ObsText(client)
+    await obs.set_image("img_blue", "/logos/er-force.png")
+    assert client.calls == [
+        ("SetInputSettings",
+         {"inputName": "img_blue", "inputSettings": {"file": "/logos/er-force.png"}}),
+    ]

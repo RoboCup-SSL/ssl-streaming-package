@@ -12,4 +12,6 @@ class ObsConfig:
     url: str
     password: str
     sources: dict[str, str] = field(default_factory=dict)
+    images: dict[str, str] = field(default_factory=dict)
+    logos_dir: str = "logos"
     text_field: str = "text"

@@ -24,7 +24,9 @@ async def main(config_path: str) -> None:
     source = build_source(config.game_controller)
     await source.start()
     try:
-        await run_referee(source, obs, config.obs.sources)
+        await run_referee(
+            source, obs, config.obs.sources, config.obs.images, config.obs.logos_dir
+        )
     finally:
         await ws.disconnect()
 

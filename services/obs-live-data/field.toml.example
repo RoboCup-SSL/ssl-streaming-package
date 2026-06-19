@@ -9,8 +9,9 @@ port = 10003
 url = "ws://localhost:4455"
 password = "change-me"
 text_field = "text"   # FreeType2 text source on Linux uses "text"
+logos_dir = "logos"   # bundled team logos; path is resolved on the OBS machine
 
-[obs.sources]
+[obs.sources]   # logical field -> OBS Text source name
 blue_name = "txt_blue_name"
 blue_score = "txt_blue_score"
 yellow_name = "txt_yellow_name"
@@ -18,6 +19,10 @@ yellow_score = "txt_yellow_score"
 stage = "txt_stage"
 next_match = "txt_next_match"
 countdown = "txt_countdown"
+
+[obs.images]   # logical field -> OBS Image source name
+blue_logo = "img_blue_logo"
+yellow_logo = "img_yellow_logo"
 
 [schedule]
 path = "data/schedule.json"

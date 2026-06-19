@@ -24,6 +24,8 @@ class FieldConfig:
                 url=obs["url"],
                 password=obs["password"],
                 sources=dict(obs.get("sources", {})),
+                images=dict(obs.get("images", {})),
+                logos_dir=obs.get("logos_dir", "logos"),
                 text_field=obs.get("text_field", "text"),
             ),
             schedule=ScheduleConfig(path=data["schedule"]["path"]),

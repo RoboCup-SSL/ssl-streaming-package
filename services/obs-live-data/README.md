@@ -26,6 +26,18 @@ In OBS (28+, obs-websocket enabled): create one **Text** source per value you wa
 The app sets each source's text as updates arrive. On Linux the FreeType2 text source's
 setting key is `text` (the default `text_field`).
 
+For team logos, create an **Image** source per team and map them in `[obs.images]`
+(`blue_logo`, `yellow_logo`). On each update the app sets that source's `file` to the logo
+matching the team name. **The path resolves on the OBS machine** — so when OBS and this app
+run on separate boxes, the `logos_dir` must exist on the OBS box; co-located is the simple case.
+
+### Team logos
+
+Bundled in [`logos/`](logos/) (see [`logos/SOURCE.md`](logos/SOURCE.md)) — sourced from the
+[ssl-status-board](https://github.com/RoboCup-SSL/ssl-status-board) project. A team's logo is
+its GC name lowercased with spaces→hyphens (`tigers-mannheim.png`); unknown teams fall back to
+`no-logo.png`.
+
 ## Driving the schedule during the stream
 
 Edit `data/schedule.json` → `live.<field>.currentId` to the id of the match now on that field;

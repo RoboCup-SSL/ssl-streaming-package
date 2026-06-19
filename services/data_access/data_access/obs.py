@@ -15,3 +15,10 @@ class ObsText:
             {"inputName": source_name, "inputSettings": {self._text_field: value}},
         )
         await self._client.call(request)
+
+    async def set_image(self, source_name: str, path: str) -> None:
+        request = simpleobsws.Request(
+            "SetInputSettings",
+            {"inputName": source_name, "inputSettings": {"file": path}},
+        )
+        await self._client.call(request)
