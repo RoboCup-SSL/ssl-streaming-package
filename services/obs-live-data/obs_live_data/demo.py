@@ -4,6 +4,7 @@ No Game Controller needed — a FakeRefereeSource drives the same push path the 
 app uses. Run: uv run python -m obs_live_data.demo field.toml
 """
 import asyncio
+import json
 import os
 import sys
 
@@ -33,14 +34,40 @@ SCRIPT = [
 ]
 
 
-class _VerboseObs(ObsText):
-    async def set_text(self, source_name: str, value: str) -> None:
-        print(f"  OBS text  <- {source_name}: {value!r}")
-        await super().set_text(source_name, value)
+class _LoggingClient:
+    """Wraps the simpleobsws client to print each request and response as JSON,
+    so we can see exactly what goes on the wire and what OBS replies."""
 
-    async def set_image(self, source_name: str, path: str) -> None:
-        print(f"  OBS image <- {source_name}: {path}")
-        await super().set_image(source_name, path)
+    def __init__(self, inner) -> None:
+        self._inner = inner
+
+    async def call(self, request):
+        print("  -> " + json.dumps(
+            {"requestType": request.requestType, "requestData": request.requestData}))
+        response = await self._inner.call(request)
+        print("  <- " + json.dumps(
+            {
+                "ok": response.ok(),
+                "requestStatus": getattr(response, "requestStatus", None),
+                "responseData": getattr(response, "responseData", None),
+            },
+            default=str,
+        ))
+        return response
+
+
+async def _preflight(ws, config) -> None:
+    """List OBS's actual inputs and flag any configured source/image names that
+    don't exist — the usual reason updates silently do nothing."""
+    response = await ws.call(simpleobsws.Request("GetInputList"))
+    inputs = {i["inputName"] for i in response.responseData.get("inputs", [])}
+    print(f"OBS inputs ({len(inputs)}): {sorted(inputs)}")
+    configured = set(config.obs.sources.values()) | set(config.obs.images.values())
+    missing = sorted(configured - inputs)
+    if missing:
+        print(f"!! configured but NOT in OBS (will silently no-op): {missing}")
+    else:
+        print("All configured source names exist in OBS.")
 
 
 async def main(config_path: str) -> None:
@@ -49,8 +76,10 @@ async def main(config_path: str) -> None:
     ws = simpleobsws.WebSocketClient(url=config.obs.url, password=config.obs.password)
     await ws.connect()
     await ws.wait_until_identified()
-    print("Connected. Playing scripted match (watch your OBS text sources):")
-    obs = _VerboseObs(ws, text_field=config.obs.text_field)
+    print("Connected.")
+    await _preflight(ws, config)
+    print("Playing scripted match (watch your OBS text sources):")
+    obs = ObsText(_LoggingClient(ws), text_field=config.obs.text_field)
     base_dir = os.path.dirname(os.path.abspath(config_path))
     logos_dir = effective_logos_dir(config.obs.logos_dir, config.obs.stage_dir, base_dir)
     try:
