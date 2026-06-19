@@ -1,3 +1,10 @@
+# Per-field config for obs-live-data. Copy to field.toml and edit.
+#
+# IMPORTANT: every name under [obs.sources] and [obs.images] must match a source you
+# created in OBS *exactly*. A name with no matching OBS source is silently ignored
+# (the run still works, that value just never appears). The demo's preflight lists your
+# actual OBS inputs and flags any configured name that doesn't exist.
+
 [field]
 name = "A"
 
@@ -9,12 +16,16 @@ port = 10003
 url = "ws://localhost:4455"
 password = "change-me"
 text_field = "text"   # FreeType2 text source on Linux uses "text"
-logos_dir = "logos"   # bundled team logos; path is resolved on the OBS machine
-# stage_dir: if set, logos are copied here on startup and paths are sent from here.
-# For a remote OBS, set the same path on both machines and mirror the folder there.
-stage_dir = "/tmp/ssl-logos"
+logos_dir = "logos"   # bundled team logos; relative paths resolve next to this file
 
-[obs.sources]   # logical field -> OBS Text source name
+# stage_dir: leave empty when OBS runs on THIS machine (the normal field deployment).
+# Only needed when OBS is on another machine: set a path, and mirror the same folder
+# (copy logos/ into it) on the OBS box so the absolute paths line up. e.g. "/tmp/ssl-logos"
+stage_dir = ""
+
+# --- Text sources: logical field -> the OBS Text source name showing it ---
+# Create one OBS "Text" source per line below (or delete lines you don't want shown).
+[obs.sources]
 blue_name = "txt_blue_name"
 blue_score = "txt_blue_score"
 yellow_name = "txt_yellow_name"
@@ -23,7 +34,9 @@ stage = "txt_stage"
 next_match = "txt_next_match"
 countdown = "txt_countdown"
 
-[obs.images]   # logical field -> OBS Image source name
+# --- Image sources: logical field -> the OBS Image source name showing the team logo ---
+# Create one OBS "Image" source per line. Omit this whole block to skip logos.
+[obs.images]
 blue_logo = "img_blue_logo"
 yellow_logo = "img_yellow_logo"
 
