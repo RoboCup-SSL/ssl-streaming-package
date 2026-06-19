@@ -4,6 +4,7 @@ No Game Controller needed — a FakeRefereeSource drives the same push path the 
 app uses. Run: uv run python -m obs_live_data.demo field.toml
 """
 import asyncio
+import os
 import sys
 
 import simpleobsws
@@ -50,7 +51,8 @@ async def main(config_path: str) -> None:
     await ws.wait_until_identified()
     print("Connected. Playing scripted match (watch your OBS text sources):")
     obs = _VerboseObs(ws, text_field=config.obs.text_field)
-    logos_dir = effective_logos_dir(config.obs.logos_dir, config.obs.stage_dir)
+    base_dir = os.path.dirname(os.path.abspath(config_path))
+    logos_dir = effective_logos_dir(config.obs.logos_dir, config.obs.stage_dir, base_dir)
     try:
         await run_referee(
             FakeRefereeSource(SCRIPT), obs, config.obs.sources,

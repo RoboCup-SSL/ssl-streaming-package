@@ -1,4 +1,5 @@
 import asyncio
+import os
 import sys
 
 import simpleobsws
@@ -17,13 +18,14 @@ def build_source(gc: GameControllerConfig) -> MulticastRefereeSource:
 
 async def main(config_path: str) -> None:
     config = FieldConfig.load_from_file(config_path)
+    base_dir = os.path.dirname(os.path.abspath(config_path))
     ws = simpleobsws.WebSocketClient(url=config.obs.url, password=config.obs.password)
     await ws.connect()
     await ws.wait_until_identified()
     obs = ObsText(ws, text_field=config.obs.text_field)
     source = build_source(config.game_controller)
     await source.start()
-    logos_dir = effective_logos_dir(config.obs.logos_dir, config.obs.stage_dir)
+    logos_dir = effective_logos_dir(config.obs.logos_dir, config.obs.stage_dir, base_dir)
     try:
         await run_referee(
             source, obs, config.obs.sources, config.obs.images, logos_dir

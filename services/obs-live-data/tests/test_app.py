@@ -3,7 +3,18 @@ import os
 from data_access.fake import FakeRefereeSource
 from data_structures.domain import MatchState, Team
 from data_structures.enums import Command, Stage
-from obs_live_data.app import run_referee
+from obs_live_data.app import effective_logos_dir, run_referee
+
+
+def test_effective_logos_dir_resolves_relative_to_base_dir(tmp_path):
+    bundle = tmp_path / "obs-live-data" / "logos"
+    bundle.mkdir(parents=True)
+    base = str(tmp_path / "obs-live-data")
+    assert effective_logos_dir("logos", "", base) == str(bundle)
+
+
+def test_effective_logos_dir_keeps_absolute_dir(tmp_path):
+    assert effective_logos_dir("/abs/logos", "", str(tmp_path)) == "/abs/logos"
 
 
 class RecordingObs:
