@@ -1,5 +1,5 @@
 [tool.uv.workspace]
-members = ["data_structures", "data_processing", "data_access", "configuration", "obs-live-data"]
+members = ["data_structures", "data_processing", "data_access", "configuration", "obs-live-data", "mediamtx-controller"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

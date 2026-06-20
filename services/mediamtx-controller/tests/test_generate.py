@@ -1,0 +1,20 @@
+import pytest
+
+from mediamtx_controller.generate import CAMERA_NAMES, build_config
+
+
+def test_build_config_has_all_five_fixed_paths():
+    config = build_config({})
+    assert set(config["paths"]) == set(CAMERA_NAMES)
+    assert CAMERA_NAMES == ["commentator", "field-1", "field-2", "field-3", "field-4"]
+
+
+def test_declared_cameras_get_a_source_others_are_blank():
+    config = build_config({"field-1": "rtsp://cam/stream"})
+    assert config["paths"]["field-1"] == {"source": "rtsp://cam/stream"}
+    assert config["paths"]["field-2"] == {}  # defined but black until fed
+
+
+def test_unknown_camera_name_raises():
+    with pytest.raises(ValueError):
+        build_config({"field-9": "rtsp://cam/stream"})
