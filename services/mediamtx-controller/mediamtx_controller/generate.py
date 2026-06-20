@@ -14,4 +14,6 @@ def build_config(cameras: dict[str, str], rtsp_port: int = 8554) -> dict:
         name: path_config(name, cameras[name], rtsp_port) if name in cameras else {}
         for name in CAMERA_NAMES
     }
-    return {"paths": paths}
+    # "warn" drops MediaMTX's per-listener/per-session INFO chatter off the console
+    # while keeping genuine warnings/errors (and a failed start) visible.
+    return {"logLevel": "warn", "paths": paths}

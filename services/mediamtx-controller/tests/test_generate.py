@@ -9,6 +9,12 @@ def test_build_config_has_all_five_fixed_paths():
     assert CAMERA_NAMES == ["commentator", "field-1", "field-2", "field-3", "field-4"]
 
 
+def test_build_config_quiets_mediamtx_to_warnings():
+    # Drops the per-listener/per-session INFO spam off the console; real
+    # warnings/errors (and a failed start) stay visible.
+    assert build_config({})["logLevel"] == "warn"
+
+
 def test_declared_cameras_get_a_source_others_are_blank():
     config = build_config({"field-1": "rtsp://cam/stream"})
     assert config["paths"]["field-1"] == {"source": "rtsp://cam/stream"}

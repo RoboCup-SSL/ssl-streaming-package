@@ -11,10 +11,17 @@ For usb/ts, ffmpeg runs under MediaMTX (runOnInit) so MediaMTX owns the child pr
 _PULL_SCHEMES = ("rtsp://", "rtsps://", "rtmp://", "rtmps://", "srt://", "http://", "https://")
 
 
+# Keep the console readable: no banner, no rewriting "frame= fps=" progress line,
+# no stdin handling, and only fatal errors. At "fatal" the SIGINT-teardown
+# broken-pipe/muxing spew is suppressed, but a camera that can't be opened still
+# reports. Bump a child to "-loglevel warning" temporarily to debug one camera.
+_QUIET = "-hide_banner -loglevel fatal -nostdin -nostats"
+
+
 def _ffmpeg(input_args: str, name: str, rtsp_port: int) -> dict:
     target = f"rtsp://localhost:{rtsp_port}/{name}"
     cmd = (
-        f"ffmpeg {input_args} "
+        f"ffmpeg {_QUIET} {input_args} "
         f"-c:v libx264 -preset ultrafast -tune zerolatency "
         f"-f rtsp {target}"
     )

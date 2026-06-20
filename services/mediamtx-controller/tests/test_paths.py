@@ -18,6 +18,14 @@ def test_usb_descriptor_runs_ffmpeg_v4l2_publishing_to_the_path():
     assert cfg["runOnInitRestart"] is True
 
 
+def test_ffmpeg_children_are_quiet():
+    # Quiet flags keep the console readable: no banner, no rewriting progress line,
+    # no broken-pipe teardown spew — but a camera that can't open still reports.
+    cmd = path_config("commentator", "usb:/dev/video0")["runOnInit"]
+    for flag in ("-hide_banner", "-loglevel fatal", "-nostdin", "-nostats"):
+        assert flag in cmd
+
+
 def test_ts_descriptor_runs_ffmpeg_reading_the_url():
     cfg = path_config("field-2", "ts:udp://@:1234", rtsp_port=8554)
     cmd = cfg["runOnInit"]
