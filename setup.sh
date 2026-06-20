@@ -8,6 +8,14 @@ say()  { printf '%s\n' "$*"; }
 warn() { printf '[!!]   %s\n' "$*" >&2; }
 have() { command -v "$1" >/dev/null 2>&1; }
 
+# A freshly-installed uv (and other user tools) land here; make sure they're findable.
+export PATH="$HOME/.local/bin:$PATH"
+
+# --- prerequisites this script itself needs ---
+for tool in curl tar; do
+  have "$tool" || { warn "'$tool' is required but not installed — install it and re-run."; exit 1; }
+done
+
 # --- uv ---
 if have uv; then
   say "[ok]   uv $(uv --version | awk '{print $2}')"

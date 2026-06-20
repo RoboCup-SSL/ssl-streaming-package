@@ -9,9 +9,13 @@ cd "$ROOT"
 CONFIG="$ROOT/${1:-field.toml}"
 MTX_YML="$ROOT/mediamtx.yml"
 
+# Find a uv that setup.sh may have just installed into ~/.local/bin.
+export PATH="$HOME/.local/bin:$PATH"
+
 die() { printf 'error: %s\n' "$*" >&2; exit 1; }
 
-[ -f "$CONFIG" ] || die "$CONFIG not found — cp field.toml.example field.toml and edit it"
+command -v uv >/dev/null 2>&1 || die "uv not found — run ./setup.sh first (it installs uv)"
+[ -f "$CONFIG" ] || die "$CONFIG not found — run: cp field.toml.example field.toml  (then edit it)"
 [ -x "$ROOT/bin/mediamtx" ] || die "bin/mediamtx not found — run ./setup.sh first"
 
 # --- config sanity (fail fast, reusing tested code) ---
@@ -23,6 +27,9 @@ die() { printf 'error: %s\n' "$*" >&2; exit 1; }
   "from configuration.appconfig import FieldConfig; FieldConfig.load_from_file('$CONFIG')" ) \
   || die "invalid field.toml: check [field], [obs], [schedule] (see message above)"
 echo "config OK"
+
+# --- non-fatal nudges for an un-edited config (noob safety net) ---
+( cd services && uv run --package configuration python -m configuration.checks "$CONFIG" ) || true
 
 # --- start MediaMTX; on exit kill it AND the ffmpeg children it spawns ---
 # No setsid: $! is genuinely mediamtx's pid. ffmpeg processes are its direct children,
