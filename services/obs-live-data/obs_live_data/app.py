@@ -5,12 +5,23 @@ from data_processing.format import format_updates
 from data_processing.logo import logo_filename
 
 
+def bundled_logos_dir() -> str:
+    """Absolute path to the team logos shipped inside this package."""
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logos"))
+
+
 def effective_logos_dir(logos_dir: str, stage_dir: str, base_dir: str) -> str:
-    """The logo dir to send paths from. A relative logos_dir is resolved against
-    base_dir (the config file's directory), not the current working directory.
-    When stage_dir is set, the logos are copied there first so paths line up with
-    a mirror on a remote OBS machine."""
-    resolved = logos_dir if os.path.isabs(logos_dir) else os.path.join(base_dir, logos_dir)
+    """The logo dir to send paths from. An empty logos_dir uses the bundled package
+    logos; a relative one resolves against base_dir (the config file's directory),
+    not the current working directory; an absolute one is used as-is. When stage_dir
+    is set, the logos are copied there first so paths line up with a mirror on a
+    remote OBS machine."""
+    if not logos_dir:
+        resolved = bundled_logos_dir()
+    elif os.path.isabs(logos_dir):
+        resolved = logos_dir
+    else:
+        resolved = os.path.join(base_dir, logos_dir)
     return stage_logos(resolved, stage_dir) if stage_dir else resolved
 
 

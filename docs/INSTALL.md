@@ -12,17 +12,25 @@ How to get the whole package running on a streaming PC. Audience: whoever sets u
 |---|---|---|
 | [`graphics/`](../graphics/) | Renders the broadcast graphics (stingers, overlays, standby) | Node + Remotion |
 | [`obs-template/`](../obs-template/) | OBS scene collection to import | OBS |
-| [`services/obs-live-data/`](../services/obs-live-data/) | Serves live match text to OBS (2.2) | Python (Flask) |
+| [`services/obs-live-data/`](../services/obs-live-data/) | Pushes live match text + logos to OBS (2.2) | Python |
+| [`services/mediamtx-controller/`](../services/mediamtx-controller/) | Generates the MediaMTX config from `[cameras]` | Python |
 | [`services/obs-controller/`](../services/obs-controller/) | (MVP2) automates OBS | Python |
 | [`services/ssl-protobuf-listener/`](../services/ssl-protobuf-listener/) | (MVP2) shared SSL protobuf library | Python lib |
 
-## Rough order (to be detailed)
+## The happy path
 
-1. Install OBS + Node + Python.
-2. Render / fetch the graphics from `graphics/`.
-3. Import the `obs-template/` scene collection into OBS; point it at the rendered graphics.
-4. Configure and run `services/obs-live-data/` (`cp field.toml.example field.toml`, edit, then
-   `uv run python -m obs_live_data field.toml`); it pushes live text to OBS over obs-websocket.
-5. (MVP2) Run `services/obs-controller/` for unattended operation.
+```bash
+./setup.sh                            # uv + Python deps + MediaMTX binary; reports missing prereqs
+cp field.toml.example field.toml      # edit per field (root of the repo)
+./run.sh                              # validate config, start MediaMTX + obs-live-data
+```
+
+`./run.sh` generates `mediamtx.yml` from `field.toml`'s `[cameras]`, starts MediaMTX (which
+ingests the cameras) and `obs-live-data` (which pushes score/stage/team text + logos to OBS),
+and tears both down on `Ctrl-C`. Replicate to another field by copying the repo and editing
+only `[cameras]`.
+
+Still manual (by design): install OBS 28+ (with obs-websocket), **import the
+`obs-template/` scene collection** and launch OBS, and render/fetch the `graphics/` overlays.
 
 For *operating* a match once installed, see the [operator handbook](handbook/).

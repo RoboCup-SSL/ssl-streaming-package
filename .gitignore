@@ -14,3 +14,7 @@ _resources/
 
 # Per-deployment field config (holds OBS password); commit field.toml.example instead
 field.toml
+
+# Downloaded / generated at deploy time
+bin/
+mediamtx.yml

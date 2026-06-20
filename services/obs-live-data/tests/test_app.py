@@ -17,6 +17,13 @@ def test_effective_logos_dir_keeps_absolute_dir(tmp_path):
     assert effective_logos_dir("/abs/logos", "", str(tmp_path)) == "/abs/logos"
 
 
+def test_effective_logos_dir_empty_uses_bundled(tmp_path):
+    # An unset logos_dir falls back to the bundled package logos, independent of cwd/base.
+    resolved = effective_logos_dir("", "", str(tmp_path))
+    assert resolved.endswith("obs-live-data/logos")
+    assert os.path.exists(os.path.join(resolved, "no-logo.png"))
+
+
 class RecordingObs:
     def __init__(self):
         self.calls = []

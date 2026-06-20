@@ -10,6 +10,21 @@ volunteer operator at any event (international, regional, or a spontaneous match
 the world), who knows Linux and programming but not OBS or video production, can produce a
 clean, watchable, shareable stream with minimal setup and little room to get things wrong.
 
+## Quickstart (deploy a field)
+
+```bash
+git clone <repo> && cd ssl-streaming-package
+./setup.sh                            # installs uv + Python deps + the MediaMTX binary
+cp field.toml.example field.toml      # edit: [cameras], OBS url/password, source names
+./run.sh                              # validates config, starts MediaMTX + live-data
+# then: import the OBS scene collection, launch OBS, go live
+```
+
+`field.toml` (repo root) is the **only** file you edit per field. To bring up another field,
+copy the repo and change its `[cameras]` block. `Ctrl-C` on `run.sh` stops everything it
+started (MediaMTX + the ffmpeg camera feeds). Target OS: Ubuntu 24+ (the MediaMTX download is
+cross-platform; Windows is untested).
+
 ## Status & roadmap
 
 Early scaffolding. The project ships in incremental MVPs, each delivering standalone value.

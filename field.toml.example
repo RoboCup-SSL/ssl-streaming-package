@@ -1,4 +1,5 @@
-# Per-field config for obs-live-data. Copy to field.toml and edit.
+# Per-field config — one per field PC. Copy to field.toml in the repo root and edit.
+# This is the ONLY file you change per field; `./run.sh` reads it.
 #
 # IMPORTANT: every name under [obs.sources] and [obs.images] must match a source you
 # created in OBS *exactly*. A name with no matching OBS source is silently ignored
@@ -23,7 +24,8 @@ field-1 = "rtsp://10.0.0.5:554/stream"
 url = "ws://localhost:4455"
 password = "change-me"
 text_field = "text"   # FreeType2 text source on Linux uses "text"
-logos_dir = "logos"   # bundled team logos; relative paths resolve next to this file
+# logos_dir: leave unset to use the bundled team logos. Set a path only to override
+# (relative paths resolve next to this file).
 
 # stage_dir: leave empty when OBS runs on THIS machine (the normal field deployment).
 # Only needed when OBS is on another machine: set a path, and mirror the same folder
