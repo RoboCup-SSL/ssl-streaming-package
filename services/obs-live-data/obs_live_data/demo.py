@@ -11,7 +11,7 @@ import sys
 import simpleobsws
 from configuration.appconfig import FieldConfig
 from data_access.fake import FakeRefereeSource
-from data_access.obs import ObsText
+from data_access.obs import ObsText, connect_obs
 from data_structures.domain import MatchState, Team
 from data_structures.enums import Command, Stage
 
@@ -82,8 +82,21 @@ async def main(config_path: str) -> None:
     config = FieldConfig.load_from_file(config_path)
     print(f"Connecting to OBS at {config.obs.url} ...")
     ws = simpleobsws.WebSocketClient(url=config.obs.url, password=config.obs.password)
-    await ws.connect()
-    await ws.wait_until_identified()
+    waited = False
+
+    def waiting(_exc):
+        nonlocal waited
+        if not waited:
+            print(f"Waiting for OBS at {config.obs.url} — start OBS with obs-websocket enabled, "
+                  f"and check [obs].url / [obs].password. (Ctrl-C to quit)")
+            waited = True
+
+    try:
+        await connect_obs(ws, on_waiting=waiting)
+    except Exception as exc:
+        print(f"Could not connect to OBS at {config.obs.url}: {exc}")
+        print("Check [obs].url and [obs].password, and that obs-websocket is enabled in OBS.")
+        sys.exit(1)
     print("Connected.")
     await _preflight(ws, config)
     print("Playing scripted match (watch your OBS text sources):")
