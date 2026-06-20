@@ -4,7 +4,8 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-say() { printf '%s\n' "$*"; }
+say()  { printf '%s\n' "$*"; }
+warn() { printf '[!!]   %s\n' "$*" >&2; }
 have() { command -v "$1" >/dev/null 2>&1; }
 
 # --- uv ---
@@ -22,39 +23,69 @@ say "[..]   uv sync (services workspace)"
 say "[ok]   python deps installed"
 
 # --- MediaMTX binary (per platform) ---
-if [ -x bin/mediamtx ]; then
-  say "[ok]   mediamtx (bin/mediamtx)"
-else
+# Fail soft: any problem here prints an actionable message and the script continues to the
+# prerequisite report, rather than aborting cryptically.
+install_mediamtx() {
+  if [ -x bin/mediamtx ]; then say "[ok]   mediamtx (bin/mediamtx)"; return 0; fi
+
+  local os arch mtx_os mtx_arch
   os=$(uname -s); arch=$(uname -m)
   case "$os" in
     Linux)  mtx_os=linux ;;
     Darwin) mtx_os=darwin ;;
     MINGW*|MSYS*|CYGWIN*) mtx_os=windows ;;
-    *) say "[!!]   unknown OS '$os' — download MediaMTX manually into bin/"; mtx_os= ;;
+    *) warn "unknown OS '$os' — download MediaMTX into bin/ yourself"; return 0 ;;
   esac
   case "$arch" in
-    x86_64|amd64) mtx_arch=amd64 ;;
+    x86_64|amd64)  mtx_arch=amd64 ;;
     aarch64|arm64) mtx_arch=arm64 ;;
-    armv7l) mtx_arch=armv7 ;;
-    *) say "[!!]   unknown arch '$arch' — download MediaMTX manually into bin/"; mtx_arch= ;;
+    armv7l)        mtx_arch=armv7 ;;
+    *) warn "unknown arch '$arch' — download MediaMTX into bin/ yourself"; return 0 ;;
   esac
-  if [ -n "$mtx_os" ] && [ -n "$mtx_arch" ]; then
-    ver=${MEDIAMTX_VERSION:-$(curl -sSL https://api.github.com/repos/bluenviron/mediamtx/releases/latest \
-      | grep -m1 '"tag_name"' | sed -E 's/.*"(v[^"]+)".*/\1/')}
-    ext=tar.gz; [ "$mtx_os" = windows ] && ext=zip
-    asset="mediamtx_${ver}_${mtx_os}_${mtx_arch}.${ext}"
-    url="https://github.com/bluenviron/mediamtx/releases/download/${ver}/${asset}"
-    say "[..]   downloading MediaMTX ${ver} (${mtx_os}/${mtx_arch})"
-    mkdir -p bin
-    tmp=$(mktemp -d)
-    curl -sSL "$url" -o "$tmp/$asset"
-    if [ "$ext" = zip ]; then unzip -o -q "$tmp/$asset" -d "$tmp"; else tar -xzf "$tmp/$asset" -C "$tmp"; fi
-    mv "$tmp/mediamtx" bin/mediamtx
-    chmod +x bin/mediamtx
-    rm -rf "$tmp"
-    say "[ok]   mediamtx -> bin/mediamtx"
+
+  local ver
+  if [ -n "${MEDIAMTX_VERSION:-}" ]; then
+    ver=$MEDIAMTX_VERSION
+  else
+    say "[..]   querying latest MediaMTX version"
+    local api
+    # Capture the whole response first — piping curl into `grep -m1` makes grep close the
+    # pipe early, which makes curl fail with "write error" (exit 23).
+    if ! api=$(curl -fsSL https://api.github.com/repos/bluenviron/mediamtx/releases/latest); then
+      warn "couldn't reach the GitHub API. Set MEDIAMTX_VERSION=vX.Y.Z and re-run, or download MediaMTX into bin/ manually."
+      return 0
+    fi
+    ver=$(printf '%s\n' "$api" | grep -m1 '"tag_name"' | sed -E 's/.*"(v[^"]+)".*/\1/' || true)
   fi
-fi
+  if [ -z "$ver" ]; then
+    warn "could not determine the MediaMTX version. Set MEDIAMTX_VERSION=vX.Y.Z and re-run."
+    return 0
+  fi
+
+  local ext=tar.gz binname=mediamtx
+  if [ "$mtx_os" = windows ]; then ext=zip; binname=mediamtx.exe; fi
+  local asset="mediamtx_${ver}_${mtx_os}_${mtx_arch}.${ext}"
+  local url="https://github.com/bluenviron/mediamtx/releases/download/${ver}/${asset}"
+  say "[..]   downloading MediaMTX ${ver} (${mtx_os}/${mtx_arch})"
+  say "       ${url}"
+
+  mkdir -p bin
+  local tmp; tmp=$(mktemp -d)
+  if ! curl -fSL --progress-bar "$url" -o "$tmp/$asset"; then
+    warn "download failed (see URL above). If the version is wrong, set MEDIAMTX_VERSION; or download manually into bin/."
+    rm -rf "$tmp"; return 0
+  fi
+  if [ "$ext" = zip ]; then unzip -o -q "$tmp/$asset" -d "$tmp"; else tar -xzf "$tmp/$asset" -C "$tmp"; fi
+  if [ ! -f "$tmp/$binname" ]; then
+    warn "the archive didn't contain '$binname' — extract it into bin/ manually."
+    rm -rf "$tmp"; return 0
+  fi
+  mv "$tmp/$binname" bin/mediamtx
+  chmod +x bin/mediamtx
+  rm -rf "$tmp"
+  say "[ok]   mediamtx ${ver} -> bin/mediamtx"
+}
+install_mediamtx
 
 # --- runtime prerequisites the deployer must have ---
 have ffmpeg && say "[ok]   ffmpeg" || say "[!!]   ffmpeg MISSING — install it (needed for USB/MPEG-TS cameras)"
