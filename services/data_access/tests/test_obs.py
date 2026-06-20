@@ -1,6 +1,41 @@
 import pytest
+import simpleobsws
 
-from data_access.obs import ObsText, connect_obs
+from data_access.obs import ObsText, ReconnectingObsClient, connect_obs
+
+
+async def _no_sleep(_):
+    pass
+
+
+def _set_text(name, value):
+    return simpleobsws.Request(
+        "SetInputSettings", {"inputName": name, "inputSettings": {"text": value}}
+    )
+
+
+class DropOnceClient:
+    """Stub obs-websocket client. Records delivered inputNames and drops the
+    connection on the given (0-based) inner-call indices."""
+
+    def __init__(self, drop_on=()):
+        self.delivered = []
+        self.connects = 0
+        self._n = 0
+        self._drop_on = set(drop_on)
+
+    async def connect(self):
+        self.connects += 1
+
+    async def wait_until_identified(self):
+        pass
+
+    async def call(self, request):
+        i = self._n
+        self._n += 1
+        if i in self._drop_on:
+            raise ConnectionResetError("OBS went away")
+        self.delivered.append(request.requestData["inputName"])
 
 
 class FlakyClient:
@@ -72,4 +107,30 @@ async def test_set_image_issues_setinputsettings_with_file():
     assert client.calls == [
         ("SetInputSettings",
          {"inputName": "img_blue", "inputSettings": {"file": "/logos/er-force.png"}}),
+    ]
+
+
+@pytest.mark.asyncio
+async def test_reconnecting_client_retries_a_call_after_a_drop():
+    inner = DropOnceClient(drop_on={0})
+    client = ReconnectingObsClient(inner, on_waiting=lambda e: None, sleep=_no_sleep)
+    await client.call(_set_text("txt", "x"))
+    assert inner.connects == 1          # reconnected once
+    assert inner.delivered == ["txt"]    # and the call still got through
+
+
+@pytest.mark.asyncio
+async def test_reconnecting_client_replays_prior_inputs_so_obs_is_current():
+    # blue_name + blue_score land; then a score update drops the connection.
+    # On reconnect the wrapper must re-push the inputs OBS forgot (blue_name),
+    # not just the one call that failed.
+    inner = DropOnceClient(drop_on={2})
+    client = ReconnectingObsClient(inner, on_waiting=lambda e: None, sleep=_no_sleep)
+    await client.call(_set_text("blue_name", "ER-Force"))
+    await client.call(_set_text("blue_score", "0"))
+    await client.call(_set_text("blue_score", "1"))
+    assert inner.connects == 1
+    assert inner.delivered == [
+        "blue_name", "blue_score",            # before the restart
+        "blue_name", "blue_score", "blue_score",  # replay of prior state, then the retry
     ]
