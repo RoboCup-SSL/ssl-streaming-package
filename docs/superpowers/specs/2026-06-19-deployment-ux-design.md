@@ -69,9 +69,13 @@ introduce.
 Idempotent. Run once per field PC. Steps:
 - Ensure `uv` is available (install via the official installer if missing).
 - `uv sync` the `services/` workspace (Python deps).
-- Check `OBS`, `mediamtx`, `ffmpeg` are on PATH; if `mediamtx` is missing, fetch the binary
-  into `./bin/` from its GitHub release.
-- Print a clear status line per prerequisite (present / installed / **missing — do X**).
+- **Download the correct MediaMTX binary for this platform** into `./bin/`: detect OS + arch
+  (`uname -s` / `uname -m` → linux/darwin/windows × amd64/arm64), map to the matching asset of
+  a **pinned** MediaMTX release, fetch and extract. MediaMTX is a single static Go binary per
+  platform, so this gives cross-platform support *and* keeps USB/HDMI capture working (Docker
+  is avoided precisely because device passthrough breaks on Win/Mac).
+- Check `OBS` and `ffmpeg` are on PATH; print a clear status line per prerequisite
+  (present / installed / **missing — do X**).
 
 Installs are the deployer's to run (matches the project's manual-install policy); `setup.sh`
 is a script *they* execute, not something committed code runs implicitly.
@@ -79,15 +83,24 @@ is a script *they* execute, not something committed code runs implicitly.
 ### `run.sh` (repo root)
 
 One command to bring the field up. Steps:
-- Generate `mediamtx.yml` from the root `field.toml` (via `mediamtx-controller`).
-- Start MediaMTX with that config in the background.
-- Start `obs-live-data` against the root `field.toml`.
-- On exit (Ctrl-C), stop the background MediaMTX (a `trap`, so no orphan processes).
-- Print the next manual step: import the OBS scene collection (once it exists) and start
-  streaming. OBS itself is launched by the deployer (it's a GUI app).
+1. **Config sanity check, fail fast** before starting anything: required `field.toml` sections
+   present; every `[cameras]` descriptor well-formed (`rtsp://` / `usb:` / `ts:`); `./bin/mediamtx`
+   present (else "run ./setup.sh"). Generating `mediamtx.yml` already raises on bad camera
+   names — reuse that. Print clear, single-line errors and exit non-zero on failure.
+2. Generate `mediamtx.yml` from the root `field.toml` (via `mediamtx-controller`).
+3. Start MediaMTX with that config **in its own process group**.
+4. Start `obs-live-data` against the root `field.toml` (foreground).
+5. Print the next manual step: import the OBS scene collection (once it exists), launch OBS,
+   go live.
 
-This is a launcher, not in-app process supervision — it keeps the "no weird process
-management" preference: each component still runs as its own normal process.
+**Reliable teardown (hard requirement).** Stopping `run.sh` (Ctrl-C or exit) must kill
+*everything it started*, including MediaMTX's ffmpeg children. Start MediaMTX in its own
+process group (`setsid`) and, on `trap EXIT INT TERM`, kill the whole group (`kill -- -<pgid>`)
+so no orphaned `mediamtx`/`ffmpeg` survive. Verify during testing with a `ps`/`pgrep` check
+after exit — zero orphans.
+
+This is a launcher, not in-app process supervision — each component still runs as its own
+normal process; the launcher just owns clean startup and teardown.
 
 ### Top-level README quickstart
 
@@ -115,9 +128,15 @@ before going live. (The deeper version can live in `run.sh` as a combined check.
 In scope: root `field.toml` move + the `logos_dir` default fix; `setup.sh`; `run.sh`;
 root README quickstart; generalized preflight.
 
-Out of scope (separate, later): the OBS scene-collection design/export itself (the operator
-designs it in OBS — option 1), and the graphics-asset path-fixup importer for that collection.
-Windows support.
+Out of scope (separate, later):
+- The OBS scene-collection design/export itself (the operator designs it in OBS — option 1),
+  and the graphics-asset path-fixup importer for that collection.
+- **Live schedule push** (next-match / countdown text to OBS) — the engine exists
+  (`import_schedule.py`, `schedule.py`, `schedule.json`) but wiring the periodic push is
+  deferred; likely wired alongside some OBS Lua scripts Emiel wants to integrate later.
+- An interactive camera-registration TUI — editing `[cameras]` + re-running `run.sh` is the
+  interface; rerunning is fine given reliable teardown.
+- Full Windows support (binary download is cross-platform, but not a tested target).
 
 ## Testing
 
