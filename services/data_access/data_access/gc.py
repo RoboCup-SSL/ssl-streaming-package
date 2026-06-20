@@ -52,6 +52,11 @@ class MulticastRefereeSource:
             lambda: _Protocol(self._handle), sock=sock
         )
 
+    async def stop(self) -> None:
+        if self._transport is not None:
+            self._transport.close()
+            self._transport = None
+
     async def __aiter__(self) -> AsyncIterator[MatchState]:
         while True:
             yield await self._queue.get()

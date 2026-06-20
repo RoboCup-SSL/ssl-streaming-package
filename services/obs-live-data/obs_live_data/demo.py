@@ -114,4 +114,7 @@ async def main(config_path: str) -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(main(sys.argv[1] if len(sys.argv) > 1 else "field.toml"))
+    try:
+        asyncio.run(main(sys.argv[1] if len(sys.argv) > 1 else "field.toml"))
+    except KeyboardInterrupt:
+        print("\nStopped.")

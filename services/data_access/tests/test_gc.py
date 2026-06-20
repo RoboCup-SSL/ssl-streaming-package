@@ -25,3 +25,19 @@ async def test_handle_skips_on_decode_error():
     src = MulticastRefereeSource(GameControllerConfig("224.5.23.1", 10003), boom)
     src._handle(b"\x00")
     assert src._queue.empty()
+
+
+async def test_stop_is_safe_before_start_and_closes_the_transport():
+    src = MulticastRefereeSource(GameControllerConfig("224.5.23.1", 10003), _decode_ok)
+    await src.stop()  # never started: no-op, must not raise
+
+    class _Transport:
+        closed = False
+
+        def close(self):
+            self.closed = True
+
+    transport = _Transport()
+    src._transport = transport
+    await src.stop()
+    assert transport.closed and src._transport is None
