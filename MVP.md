@@ -43,6 +43,12 @@ GC-data feeder (scores/names) and grows automation in MVP2.
 - 2.1 auto start/stop per-match stream, per-match YouTube key, schedule + GC driven
   (*first in line — the headline*)
 - 2.3 auto scene switching (live / halftime / post-match)
+  - *Concrete seed (deferred, 2026-06-21):* trigger on the GC **Stage** (already decoded
+    on every message). On a stage change call obs-websocket `SetCurrentProgramScene` to a
+    scene named for that stage (e.g. `pregame` for `NORMAL_FIRST_HALF_PRE`, `1st_half`,
+    `half_time`, …, `post_game`); switch only if such a scene exists, else no-op — same
+    "name is the contract, missing = skip" rule as the overlay sources. Pairs with the Move
+    transition plugin for animated phase changes. NOT in MVP1.
 
 **Later**
 - 2.4 digital ball-zoom
