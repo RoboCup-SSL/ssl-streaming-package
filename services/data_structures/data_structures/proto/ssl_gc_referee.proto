@@ -55,7 +55,15 @@ message Referee {
     uint32 red_cards = 3;
     repeated uint32 yellow_card_times = 4;
     uint32 yellow_cards = 5;
+    uint32 timeout_time = 7;
+    bool bot_substitution_intent = 14;
+    bool bot_substitution_allowed = 16;
+    uint32 bot_substitution_time_left = 18;
   }
   TeamInfo yellow = 7;
   TeamInfo blue = 8;
+
+  // optional so we can tell "absent" from HALT(0); int64 (not sint64) matches the GC wire.
+  optional Command next_command = 12;
+  int64 current_action_time_remaining = 15;
 }
