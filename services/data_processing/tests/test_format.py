@@ -65,8 +65,9 @@ def test_command_color_only_tints_non_running_team_commands():
     assert command_color(Command.TIMEOUT_YELLOW) == 0xFF45F1FF
     # A free kick's command lingers through running play, so it must NOT stay tinted.
     assert command_color(Command.DIRECT_FREE_BLUE) == 0
-    assert command_color(Command.HALT) == 0
     assert command_color(Command.NORMAL_START) == 0
+    # Halt gets the board's alert red (#ee0022).
+    assert command_color(Command.HALT) == 0xFF2200EE
 
 
 def test_next_command_text():
