@@ -41,16 +41,15 @@ def _state(blue_score, blue_name="ER-Force", yellow_name="TIGERs"):
                       Team(blue_name, blue_score, 0), Team(yellow_name, 0, 0))
 
 
-async def test_run_pushes_only_changed_fields():
-    sources = {"blue_score": "txt_bs", "blue_name": "txt_bn"}
+async def test_run_pushes_changed_fields_only():
     obs = RecordingObs()
     src = FakeRefereeSource([(0.0, _state(0)), (0.0, _state(1))])
-    await run_referee(src, obs, sources)
-    # first state pushes both (format order: name before score); second state
-    # re-pushes only the changed score.
-    assert obs.calls == [
-        ("txt_bn", "ER-Force"), ("txt_bs", "0"), ("txt_bs", "1"),
-    ]
+    await run_referee(src, obs, "logos")
+    # canonical source names; blue_score re-pushes on change, blue_name does not.
+    assert ("blue_name", "ER-Force") in obs.calls
+    assert obs.calls.count(("blue_name", "ER-Force")) == 1
+    assert obs.calls.count(("blue_score", "0")) == 1
+    assert obs.calls.count(("blue_score", "1")) == 1
 
 
 async def test_run_pushes_team_logos(tmp_path):
@@ -58,10 +57,8 @@ async def test_run_pushes_team_logos(tmp_path):
     (tmp_path / "no-logo.png").write_bytes(b"x")
     obs = RecordingObs()
     src = FakeRefereeSource([(0.0, _state(0, yellow_name="Nonexistent"))])
-    await run_referee(
-        src, obs, {}, {"blue_logo": "img_b", "yellow_logo": "img_y"}, str(tmp_path)
-    )
+    await run_referee(src, obs, str(tmp_path))
     assert obs.images == [
-        ("img_b", os.path.abspath(str(tmp_path / "er-force.png"))),
-        ("img_y", os.path.abspath(str(tmp_path / "no-logo.png"))),
+        ("blue_logo", os.path.abspath(str(tmp_path / "er-force.png"))),
+        ("yellow_logo", os.path.abspath(str(tmp_path / "no-logo.png"))),
     ]

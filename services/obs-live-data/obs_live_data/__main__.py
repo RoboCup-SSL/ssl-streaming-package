@@ -28,9 +28,7 @@ async def main(config_path: str) -> None:
     await source.start()
     logos_dir = effective_logos_dir(config.obs.logos_dir, config.obs.stage_dir, base_dir)
     try:
-        await run_referee(
-            source, obs, config.obs.sources, config.obs.images, logos_dir
-        )
+        await run_referee(source, obs, logos_dir)
     finally:
         await source.stop()
         await ws.disconnect()

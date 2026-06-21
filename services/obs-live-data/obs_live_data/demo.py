@@ -71,18 +71,12 @@ class _LoggingClient:
         return response
 
 
-async def _preflight(client, config) -> None:
-    """List OBS's actual inputs and flag any configured source/image names that
-    don't exist — the usual reason updates silently do nothing."""
+async def _preflight(client) -> None:
+    """List OBS's actual inputs so you can confirm your sources are named to match
+    the canonical field names (see obs-template/README.md)."""
     response = await client.call(simpleobsws.Request("GetInputList"))
-    inputs = {i["inputName"] for i in response.responseData.get("inputs", [])}
-    print(f"OBS inputs ({len(inputs)}): {sorted(inputs)}")
-    configured = set(config.obs.sources.values()) | set(config.obs.images.values())
-    missing = sorted(configured - inputs)
-    if missing:
-        print(f"!! configured but NOT in OBS (will silently no-op): {missing}")
-    else:
-        print("All configured source names exist in OBS.")
+    inputs = sorted(i["inputName"] for i in response.responseData.get("inputs", []))
+    print(f"OBS inputs ({len(inputs)}): {inputs}")
 
 
 async def main(config_path: str) -> None:
@@ -91,16 +85,13 @@ async def main(config_path: str) -> None:
     ws = simpleobsws.WebSocketClient(url=config.obs.url, password=config.obs.password)
     client = await connect_obs_or_exit(_LoggingClient(ws), config.obs.url)
     print("Connected.")
-    await _preflight(client, config)
+    await _preflight(client)
     print("Playing scripted match (watch your OBS text sources):")
     obs = ObsText(client, text_field=config.obs.text_field)
     base_dir = os.path.dirname(os.path.abspath(config_path))
     logos_dir = effective_logos_dir(config.obs.logos_dir, config.obs.stage_dir, base_dir)
     try:
-        await run_referee(
-            FakeRefereeSource(SCRIPT), obs, config.obs.sources,
-            config.obs.images, logos_dir,
-        )
+        await run_referee(FakeRefereeSource(SCRIPT), obs, logos_dir)
     finally:
         await ws.disconnect()
     print("Done.")

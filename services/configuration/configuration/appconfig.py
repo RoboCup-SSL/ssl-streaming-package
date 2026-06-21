@@ -23,8 +23,6 @@ class FieldConfig:
             obs=ObsConfig(
                 url=obs["url"],
                 password=obs["password"],
-                sources=dict(obs.get("sources", {})),
-                images=dict(obs.get("images", {})),
                 logos_dir=obs.get("logos_dir", ""),
                 stage_dir=obs.get("stage_dir", ""),
                 text_field=obs.get("text_field", "text"),
