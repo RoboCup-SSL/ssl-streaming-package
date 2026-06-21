@@ -11,11 +11,12 @@ import sys
 import simpleobsws
 from configuration.appconfig import FieldConfig
 from data_access.fake import FakeRefereeSource
-from data_access.obs import ObsText, connect_obs
+from data_access.obs import ObsText
 from data_structures.domain import MatchState, Team
 from data_structures.enums import Command, Stage
 
 from obs_live_data.app import effective_logos_dir, run_referee
+from obs_live_data.connect import connect_obs_or_exit
 
 
 # Team names match logo files in logos/ (lowercased, spaces -> hyphens).
@@ -49,6 +50,12 @@ class _LoggingClient:
     def __init__(self, inner) -> None:
         self._inner = inner
 
+    async def connect(self):
+        return await self._inner.connect()
+
+    async def wait_until_identified(self):
+        return await self._inner.wait_until_identified()
+
     async def call(self, request):
         print("  -> " + json.dumps(
             {"requestType": request.requestType, "requestData": request.requestData}))
@@ -64,10 +71,10 @@ class _LoggingClient:
         return response
 
 
-async def _preflight(ws, config) -> None:
+async def _preflight(client, config) -> None:
     """List OBS's actual inputs and flag any configured source/image names that
     don't exist — the usual reason updates silently do nothing."""
-    response = await ws.call(simpleobsws.Request("GetInputList"))
+    response = await client.call(simpleobsws.Request("GetInputList"))
     inputs = {i["inputName"] for i in response.responseData.get("inputs", [])}
     print(f"OBS inputs ({len(inputs)}): {sorted(inputs)}")
     configured = set(config.obs.sources.values()) | set(config.obs.images.values())
@@ -82,25 +89,11 @@ async def main(config_path: str) -> None:
     config = FieldConfig.load_from_file(config_path)
     print(f"Connecting to OBS at {config.obs.url} ...")
     ws = simpleobsws.WebSocketClient(url=config.obs.url, password=config.obs.password)
-    waited = False
-
-    def waiting(_exc):
-        nonlocal waited
-        if not waited:
-            print(f"Waiting for OBS at {config.obs.url} — start OBS with obs-websocket enabled, "
-                  f"and check [obs].url / [obs].password. (Ctrl-C to quit)")
-            waited = True
-
-    try:
-        await connect_obs(ws, on_waiting=waiting)
-    except Exception as exc:
-        print(f"Could not connect to OBS at {config.obs.url}: {exc}")
-        print("Check [obs].url and [obs].password, and that obs-websocket is enabled in OBS.")
-        sys.exit(1)
+    client = await connect_obs_or_exit(_LoggingClient(ws), config.obs.url)
     print("Connected.")
-    await _preflight(ws, config)
+    await _preflight(client, config)
     print("Playing scripted match (watch your OBS text sources):")
-    obs = ObsText(_LoggingClient(ws), text_field=config.obs.text_field)
+    obs = ObsText(client, text_field=config.obs.text_field)
     base_dir = os.path.dirname(os.path.abspath(config_path))
     logos_dir = effective_logos_dir(config.obs.logos_dir, config.obs.stage_dir, base_dir)
     try:
