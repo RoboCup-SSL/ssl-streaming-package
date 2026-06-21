@@ -48,6 +48,10 @@ sources. Times are `MM:SS` (negative in overtime).
 
 > Tip: run `uv run python -m obs_live_data.demo field.toml` — it prints OBS's current input
 > names and plays a scripted match, so you can confirm your sources are named correctly.
+>
+> To test against a **real** match, replay an official SSL gamelog:
+> `uv run python -m obs_live_data.demo_gamelog <gamelog.log.gz> field.toml [speed]`
+> (`speed` is a playback multiplier, e.g. `5` for 5×).
 
 ## Status
 
