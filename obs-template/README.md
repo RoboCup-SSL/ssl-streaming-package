@@ -51,7 +51,7 @@ sources. Times are `MM:SS` (negative in overtime).
 
 | Source name | Behaviour |
 |---|---|
-| `command_color` | tinted to the team of a team-specific stoppage (ball placement, timeout, kickoff/penalty prep, goal) — blue `#779fff` / yellow `#fff145`; **red `#ee0022` on Halt**; **transparent** during running play (incl. a taken free kick) and other team-less commands, so a backing bar hides itself. Put it behind `command`/`game_state` for a coloured highlight. |
+| `command_color` | tinted to the team of a team-specific stoppage (ball placement, timeout, kickoff/penalty prep, goal) — blue `#779fff` / yellow `#fff145`; **red `#ee0022` on Halt**, **orange `#ff7000` on Stop**; **transparent** during running play (incl. a taken free kick) and other team-less commands, so a backing bar hides itself. Put it behind `command`/`game_state` for a coloured highlight. |
 
 > Tip: run `uv run python -m obs_live_data.demo field.toml` — it prints OBS's current input
 > names and plays a scripted match, so you can confirm your sources are named correctly.
