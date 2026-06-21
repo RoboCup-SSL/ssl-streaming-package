@@ -15,5 +15,15 @@ def build_config(cameras: dict[str, str], rtsp_port: int = 8554) -> dict:
         for name in CAMERA_NAMES
     }
     # "warn" drops MediaMTX's per-listener/per-session INFO chatter off the console
-    # while keeping genuine warnings/errors (and a failed start) visible.
-    return {"logLevel": "warn", "paths": paths}
+    # while keeping genuine warnings/errors (and a failed start) visible. We only use
+    # RTSP (OBS pulls it; ffmpeg publishes it), so turn off every other server: fewer
+    # open ports, and no MoQ self-signed cert (auto.crt/auto.key) written to cwd.
+    return {
+        "logLevel": "warn",
+        "rtmp": False,
+        "hls": False,
+        "webrtc": False,
+        "srt": False,
+        "moq": False,
+        "paths": paths,
+    }

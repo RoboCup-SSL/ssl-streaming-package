@@ -15,6 +15,13 @@ def test_build_config_quiets_mediamtx_to_warnings():
     assert build_config({})["logLevel"] == "warn"
 
 
+def test_build_config_disables_servers_we_dont_use():
+    # We only use RTSP. Disabling the rest avoids extra open ports and stops MoQ
+    # from writing a self-signed auto.crt/auto.key into the working directory.
+    config = build_config({})
+    assert all(config[server] is False for server in ("rtmp", "hls", "webrtc", "srt", "moq"))
+
+
 def test_declared_cameras_get_a_source_others_are_blank():
     config = build_config({"field-1": "rtsp://cam/stream"})
     assert config["paths"]["field-1"] == {"source": "rtsp://cam/stream"}

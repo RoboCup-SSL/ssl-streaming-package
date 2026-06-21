@@ -18,3 +18,7 @@ field.toml
 # Downloaded / generated at deploy time
 bin/
 mediamtx.yml
+mediamtx.log
+# Self-signed certs MediaMTX may write to cwd (we disable the servers that need them)
+auto.crt
+auto.key
