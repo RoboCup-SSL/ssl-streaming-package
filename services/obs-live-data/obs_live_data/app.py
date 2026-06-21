@@ -1,7 +1,7 @@
 import os
 
 from data_access.staging import stage_logos
-from data_processing.format import format_updates
+from data_processing.format import format_colors, format_updates
 from data_processing.logo import logo_filename
 
 
@@ -44,7 +44,7 @@ async def run_referee(source, obs, logos_dir: str = "logos") -> None:
     """Push live referee-derived text and team logos to OBS, sending only values
     that changed since the last push (last-write-wins per canonical source name).
     The source name is the field name; sources you didn't create are silent no-ops."""
-    last: dict[str, str] = {}
+    last: dict[str, object] = {}
     async for state in source:
         for name, value in format_updates(state).items():
             if last.get(name) != value:
@@ -54,3 +54,7 @@ async def run_referee(source, obs, logos_dir: str = "logos") -> None:
             if last.get(name) != path:
                 await obs.set_image(name, path)
                 last[name] = path
+        for name, color in format_colors(state).items():
+            if last.get(name) != color:
+                await obs.set_color(name, color)
+                last[name] = color

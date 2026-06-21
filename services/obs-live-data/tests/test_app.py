@@ -28,12 +28,16 @@ class RecordingObs:
     def __init__(self):
         self.calls = []
         self.images = []
+        self.colors = []
 
     async def set_text(self, source_name, value):
         self.calls.append((source_name, value))
 
     async def set_image(self, source_name, path):
         self.images.append((source_name, path))
+
+    async def set_color(self, source_name, color):
+        self.colors.append((source_name, color))
 
 
 def _state(blue_score, blue_name="ER-Force", yellow_name="TIGERs"):
@@ -50,6 +54,15 @@ async def test_run_pushes_changed_fields_only():
     assert obs.calls.count(("blue_name", "ER-Force")) == 1
     assert obs.calls.count(("blue_score", "0")) == 1
     assert obs.calls.count(("blue_score", "1")) == 1
+
+
+async def test_run_pushes_command_color_for_the_active_team():
+    obs = RecordingObs()
+    blue_bp = MatchState(Stage.NORMAL_FIRST_HALF, Command.BALL_PLACEMENT_BLUE,
+                         Team("B", 0, 0), Team("Y", 0, 0))
+    src = FakeRefereeSource([(0.0, blue_bp)])
+    await run_referee(src, obs, "logos")
+    assert ("command_color", 0xFFFF9F77) in obs.colors
 
 
 async def test_run_pushes_team_logos(tmp_path):

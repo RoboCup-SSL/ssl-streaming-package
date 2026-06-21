@@ -1,5 +1,6 @@
 from data_processing.format import (
     card_time_texts,
+    command_color,
     command_text,
     format_clock,
     format_updates,
@@ -54,6 +55,15 @@ def test_game_state_is_the_coarse_play_state():
     assert game_state_text(Command.STOP) == "Game is Stopped"
     assert game_state_text(Command.DIRECT_FREE_BLUE) == "Game is Running"
     assert game_state_text(Command.BALL_PLACEMENT_YELLOW) == "Ball Placement"
+
+
+def test_command_color_is_team_abgr_or_transparent():
+    # OBS color sources use 0xAABBGGRR. Blue #779fff, Yellow #fff145; no team -> transparent.
+    assert command_color(Command.BALL_PLACEMENT_BLUE) == 0xFFFF9F77
+    assert command_color(Command.GOAL_YELLOW) == 0xFF45F1FF
+    assert command_color(Command.DIRECT_FREE_BLUE) == 0xFFFF9F77
+    assert command_color(Command.HALT) == 0
+    assert command_color(Command.NORMAL_START) == 0
 
 
 def test_next_command_text():

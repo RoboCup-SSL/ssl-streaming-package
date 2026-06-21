@@ -76,6 +76,43 @@ def game_state_text(command: Command) -> str:
     return _GAME_STATE_TEXT[command]
 
 
+def _abgr(r: int, g: int, b: int, a: int = 0xFF) -> int:
+    """OBS color sources store colour as a single 0xAABBGGRR integer."""
+    return (a << 24) | (b << 16) | (g << 8) | r
+
+
+# Match the status board's team colours (assets/global.css): blue #779fff, yellow #fff145.
+_TEAM_BLUE = _abgr(0x77, 0x9F, 0xFF)
+_TEAM_YELLOW = _abgr(0xFF, 0xF1, 0x45)
+_TRANSPARENT = 0
+
+_BLUE_COMMANDS = {
+    Command.PREPARE_KICKOFF_BLUE, Command.PREPARE_PENALTY_BLUE,
+    Command.DIRECT_FREE_BLUE, Command.INDIRECT_FREE_BLUE,
+    Command.TIMEOUT_BLUE, Command.GOAL_BLUE, Command.BALL_PLACEMENT_BLUE,
+}
+_YELLOW_COMMANDS = {
+    Command.PREPARE_KICKOFF_YELLOW, Command.PREPARE_PENALTY_YELLOW,
+    Command.DIRECT_FREE_YELLOW, Command.INDIRECT_FREE_YELLOW,
+    Command.TIMEOUT_YELLOW, Command.GOAL_YELLOW, Command.BALL_PLACEMENT_YELLOW,
+}
+
+
+def command_color(command: Command) -> int:
+    """OBS colour for the team the current command applies to; transparent when the
+    command has no team (Halt/Stop/Normal Start), so a backing Color source hides itself."""
+    if command in _BLUE_COMMANDS:
+        return _TEAM_BLUE
+    if command in _YELLOW_COMMANDS:
+        return _TEAM_YELLOW
+    return _TRANSPARENT
+
+
+def format_colors(state: MatchState) -> dict[str, int]:
+    """Canonical Color-source name -> OBS colour int."""
+    return {"command_color": command_color(state.command)}
+
+
 def format_clock(microseconds: int) -> str:
     """Match the status board's formatDuration: 0 -> '0:00', else 'MM:SS' (both padded),
     ceiling of seconds, '-' prefix when negative (overtime)."""

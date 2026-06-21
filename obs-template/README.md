@@ -47,6 +47,12 @@ sources. Times are `MM:SS` (negative in overtime).
 | `command` | detailed command incl. team + inline time, e.g. `Free Kick for Blue`, `Ball Placement for Blue (00:08)`, `Timeout for Yellow (01:23)`, `Halt` |
 | `next_command` | `Next: Kickoff for Yellow` (blank when none) |
 
+**Color source** (create an OBS **Color Source** with this name):
+
+| Source name | Behaviour |
+|---|---|
+| `command_color` | tinted to the team the current command applies to (blue `#779fff` / yellow `#fff145`); **transparent** when the command has no team (Halt/Stop/running), so a backing bar hides itself. Put it behind `command`/`game_state` for a team-coloured highlight. |
+
 > Tip: run `uv run python -m obs_live_data.demo field.toml` — it prints OBS's current input
 > names and plays a scripted match, so you can confirm your sources are named correctly.
 >

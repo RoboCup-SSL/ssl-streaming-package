@@ -105,3 +105,10 @@ class ObsText:
             {"inputName": source_name, "inputSettings": {"file": path}},
         )
         await self._client.call(request)
+
+    async def set_color(self, source_name: str, color: int) -> None:
+        request = simpleobsws.Request(
+            "SetInputSettings",
+            {"inputName": source_name, "inputSettings": {"color": color}},
+        )
+        await self._client.call(request)
