@@ -57,11 +57,14 @@ def test_game_state_is_the_coarse_play_state():
     assert game_state_text(Command.BALL_PLACEMENT_YELLOW) == "Ball Placement"
 
 
-def test_command_color_is_team_abgr_or_transparent():
-    # OBS color sources use 0xAABBGGRR. Blue #779fff, Yellow #fff145; no team -> transparent.
+def test_command_color_only_tints_non_running_team_commands():
+    # OBS color sources use 0xAABBGGRR. Blue #779fff, Yellow #fff145.
     assert command_color(Command.BALL_PLACEMENT_BLUE) == 0xFFFF9F77
     assert command_color(Command.GOAL_YELLOW) == 0xFF45F1FF
-    assert command_color(Command.DIRECT_FREE_BLUE) == 0xFFFF9F77
+    assert command_color(Command.PREPARE_KICKOFF_BLUE) == 0xFFFF9F77
+    assert command_color(Command.TIMEOUT_YELLOW) == 0xFF45F1FF
+    # A free kick's command lingers through running play, so it must NOT stay tinted.
+    assert command_color(Command.DIRECT_FREE_BLUE) == 0
     assert command_color(Command.HALT) == 0
     assert command_color(Command.NORMAL_START) == 0
 
