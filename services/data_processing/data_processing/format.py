@@ -44,8 +44,36 @@ _COMMAND_TEXT = {
 }
 
 
+# Command -> coarse play state (no team), the status board's center line. The team is
+# carried separately by command_text(); this is the "Game is Running / Halted" summary.
+_GAME_STATE_TEXT = {
+    Command.HALT: "Game is Halted",
+    Command.STOP: "Game is Stopped",
+    Command.NORMAL_START: "Game is Running",
+    Command.FORCE_START: "Game is Running",
+    Command.PREPARE_KICKOFF_YELLOW: "Kickoff",
+    Command.PREPARE_KICKOFF_BLUE: "Kickoff",
+    Command.PREPARE_PENALTY_YELLOW: "Penalty Kick",
+    Command.PREPARE_PENALTY_BLUE: "Penalty Kick",
+    Command.DIRECT_FREE_YELLOW: "Game is Running",
+    Command.DIRECT_FREE_BLUE: "Game is Running",
+    Command.INDIRECT_FREE_YELLOW: "Game is Running",
+    Command.INDIRECT_FREE_BLUE: "Game is Running",
+    Command.TIMEOUT_YELLOW: "Timeout",
+    Command.TIMEOUT_BLUE: "Timeout",
+    Command.GOAL_YELLOW: "Goal",
+    Command.GOAL_BLUE: "Goal",
+    Command.BALL_PLACEMENT_YELLOW: "Ball Placement",
+    Command.BALL_PLACEMENT_BLUE: "Ball Placement",
+}
+
+
 def stage_label(stage: Stage) -> str:
     return _STAGE_LABELS[stage]
+
+
+def game_state_text(command: Command) -> str:
+    return _GAME_STATE_TEXT[command]
 
 
 def format_clock(microseconds: int) -> str:
@@ -104,6 +132,7 @@ def format_updates(state: MatchState) -> dict[str, str]:
         "stage": stage_label(state.stage),
         "stage_time": format_clock(state.stage_time_left),
         "command": command_text(state),
+        "game_state": game_state_text(state.command),
         "next_command": next_command_text(state.next_command),
         "blue_yellow_cards": str(state.blue.yellow_cards),
         "yellow_yellow_cards": str(state.yellow.yellow_cards),

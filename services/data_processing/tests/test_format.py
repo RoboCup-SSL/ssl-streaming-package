@@ -3,6 +3,7 @@ from data_processing.format import (
     command_text,
     format_clock,
     format_updates,
+    game_state_text,
     next_command_text,
     stage_label,
     substitution_text,
@@ -47,6 +48,14 @@ def test_command_text_embeds_team_and_inline_times():
     assert command_text(to) == "Timeout for Yellow (01:23)"
 
 
+def test_game_state_is_the_coarse_play_state():
+    assert game_state_text(Command.NORMAL_START) == "Game is Running"
+    assert game_state_text(Command.HALT) == "Game is Halted"
+    assert game_state_text(Command.STOP) == "Game is Stopped"
+    assert game_state_text(Command.DIRECT_FREE_BLUE) == "Game is Running"
+    assert game_state_text(Command.BALL_PLACEMENT_YELLOW) == "Ball Placement"
+
+
 def test_next_command_text():
     assert next_command_text(None) == ""
     assert next_command_text(Command.PREPARE_KICKOFF_YELLOW) == "Next: Kickoff for Yellow"
@@ -76,6 +85,7 @@ def test_format_updates_emits_all_canonical_keys():
     assert out["stage"] == "1st Half"
     assert out["stage_time"] == "02:05"
     assert out["command"] == "Normal Start"
+    assert out["game_state"] == "Game is Running"
     assert out["next_command"] == ""
     assert out["blue_yellow_cards"] == "1"
     assert out["blue_red_cards"] == "2"

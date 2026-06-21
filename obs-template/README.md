@@ -43,7 +43,8 @@ sources. Times are `MM:SS` (negative in overtime).
 |---|---|
 | `stage` | stage label, e.g. `1st Half`, `Half Time`, `Match finished` |
 | `stage_time` | stage clock, e.g. `04:21` |
-| `command` | current command incl. team + inline time, e.g. `Free Kick for Blue`, `Ball Placement for Blue (00:08)`, `Timeout for Yellow (01:23)`, `Halt` |
+| `game_state` | coarse play state, e.g. `Game is Running`, `Game is Halted`, `Game is Stopped`, `Timeout`, `Ball Placement` |
+| `command` | detailed command incl. team + inline time, e.g. `Free Kick for Blue`, `Ball Placement for Blue (00:08)`, `Timeout for Yellow (01:23)`, `Halt` |
 | `next_command` | `Next: Kickoff for Yellow` (blank when none) |
 
 > Tip: run `uv run python -m obs_live_data.demo field.toml` — it prints OBS's current input
