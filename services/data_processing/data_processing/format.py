@@ -84,9 +84,10 @@ def _abgr(r: int, g: int, b: int, a: int = 0xFF) -> int:
 # Match the status board's team colours (assets/global.css): blue #779fff, yellow #fff145.
 _TEAM_BLUE = _abgr(0x77, 0x9F, 0xFF)
 _TEAM_YELLOW = _abgr(0xFF, 0xF1, 0x45)
-# The board's command highlights (MatchStatus.vue): halt red #ee0022, stop orange #ff7000.
-_HALT_RED = _abgr(0xEE, 0x00, 0x22)
-_STOP_ORANGE = _abgr(0xFF, 0x70, 0x00)
+# Halt/Stop highlights, lightened to the team palette so text stays readable on top:
+# light red #ff7777, light orange #ffaa55.
+_HALT_RED = _abgr(0xFF, 0x77, 0x77)
+_STOP_ORANGE = _abgr(0xFF, 0xAA, 0x55)
 _TRANSPARENT = 0
 
 # Only team-specific *stoppage / preparation* commands are tinted. Free kicks are
