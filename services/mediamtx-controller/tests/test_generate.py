@@ -15,11 +15,12 @@ def test_build_config_quiets_mediamtx_to_warnings():
     assert build_config({})["logLevel"] == "warn"
 
 
-def test_build_config_disables_servers_we_dont_use():
-    # We only use RTSP. Disabling the rest avoids extra open ports and stops MoQ
-    # from writing a self-signed auto.crt/auto.key into the working directory.
+def test_build_config_keeps_rtsp_and_webrtc_but_disables_the_rest():
+    # RTSP (OBS/ffmpeg) and WebRTC (browser camera preview) stay on; disabling the
+    # rest avoids extra ports and stops MoQ writing auto.crt/auto.key into cwd.
     config = build_config({})
-    assert all(config[server] is False for server in ("rtmp", "hls", "webrtc", "srt", "moq"))
+    assert config["webrtc"] is True
+    assert all(config[server] is False for server in ("rtmp", "hls", "srt", "moq"))
 
 
 def test_declared_cameras_get_a_source_others_are_blank():
