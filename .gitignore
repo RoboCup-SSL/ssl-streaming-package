@@ -22,3 +22,6 @@ mediamtx.log
 # Self-signed certs MediaMTX may write to cwd (we disable the servers that need them)
 auto.crt
 auto.key
+
+# OBS profile stream config — holds the per-field stream key; commit service.json.example only
+obs-template/**/profile/service.json

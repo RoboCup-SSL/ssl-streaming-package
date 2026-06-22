@@ -60,8 +60,26 @@ sources. Times are `MM:SS` (negative in overtime).
 > `uv run python -m obs_live_data.demo_gamelog <gamelog.log.gz> field.toml [speed]`
 > (`speed` is a playback multiplier, e.g. `5` for 5×).
 
+## robocup-2026/ (work in progress)
+
+The RoboCup 2026 template, exported from OBS:
+
+- `robocup-2026/scenes.json` — the scene collection (Scenes → import via *Scene Collection →
+  Import*). Scenes: `scoreboard`, `camera_1`, `commentator_view`.
+- `robocup-2026/profile/` — the OBS profile (encoder/output): `basic.ini`, `streamEncoder.json`,
+  and `service.json.example`. **The real `service.json` is git-ignored** (it holds the per-field
+  stream key) — copy the `.example` to `service.json` on each field PC and set the server/key.
+
+> **Known WIP caveat:** the export embeds **absolute media paths** (some pointing outside the
+> repo). It won't render correctly on another machine until those are repointed at in-repo
+> assets — the path-fixup/staging step. Fine while iterating; must be fixed before copy-paste
+> deploy to the three fields.
+
+Re-export workflow: name the OBS scene collection `robocup-2026` so exports land as
+`robocup-2026.json`, then overwrite `scenes.json`.
+
 ## Status
 
-**Scaffold + live-overlay contract.** The data side (obs-live-data) pushes all the source
-names above. The scene collection itself is still hand-built in OBS and exported here. The
-graphics it references already exist in `../graphics`.
+**Scaffold + live-overlay contract + WIP template.** The data side (obs-live-data) pushes all
+the source names above; `robocup-2026/` holds the in-progress scene collection. The graphics it
+references already exist in `../graphics`.
