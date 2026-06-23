@@ -70,13 +70,24 @@ The RoboCup 2026 template, exported from OBS:
   and `service.json.example`. **The real `service.json` is git-ignored** (it holds the per-field
   stream key) — copy the `.example` to `service.json` on each field PC and set the server/key.
 
-> **Known WIP caveat:** the export embeds **absolute media paths** (some pointing outside the
-> repo). It won't render correctly on another machine until those are repointed at in-repo
-> assets — the path-fixup/staging step. Fine while iterating; must be fixed before copy-paste
-> deploy to the three fields.
+### Media paths — the `/var/tmp/ssl-streaming` symlink
+
+OBS bakes **absolute** media paths into a scene collection and expands no env vars, so a path
+like `/home/<you>/.../graphics/...` wouldn't be portable across field PCs. Instead `scenes.json`
+references everything under a **fixed, username-independent path**: `/var/tmp/ssl-streaming/…`.
+`run.sh` creates `ln -s <repo> /var/tmp/ssl-streaming` each run, so that path resolves to this
+machine's clone wherever it lives. (`/var/tmp` is the FHS location for files preserved across
+reboots.) Net effect: the **same `scenes.json` works on every box, unchanged** — just run
+`./run.sh` before launching OBS.
+
+> **Two assets still external (WIP):** `scenes.json` still points one source at
+> `…/projects/remotion/out/replay-rewind.webm` (render it and drop it in-repo, then repoint to
+> `/var/tmp/ssl-streaming/…`), and `field_screenshot.png` is a local placeholder. Everything
+> else (RC2026 brand art, team logos) resolves through the symlink.
 
 Re-export workflow: name the OBS scene collection `robocup-2026` so exports land as
-`robocup-2026.json`, then overwrite `scenes.json`.
+`robocup-2026.json`; before committing, rewrite the baked paths to `/var/tmp/ssl-streaming/…`
+(OBS writes them as the absolute path you picked the file from), then overwrite `scenes.json`.
 
 ## Status
 

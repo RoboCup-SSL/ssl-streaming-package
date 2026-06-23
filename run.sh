@@ -31,6 +31,17 @@ echo "config OK"
 # --- non-fatal nudges for an un-edited config (noob safety net) ---
 ( cd services && uv run --package configuration python -m configuration.checks "$CONFIG" ) || true
 
+# --- fixed media path for OBS ---
+# The OBS scene collection references media via /var/tmp/ssl-streaming/... so the same
+# scenes.json works on every field PC regardless of where the repo was cloned or the
+# username. /var/tmp survives reboots (FHS); we (re)create the symlink each run anyway.
+MEDIA_LINK=/var/tmp/ssl-streaming
+if [ -L "$MEDIA_LINK" ] || [ ! -e "$MEDIA_LINK" ]; then
+  ln -sfn "$ROOT" "$MEDIA_LINK"
+else
+  printf '[warn] %s exists and is not a symlink — OBS media paths may not resolve\n' "$MEDIA_LINK" >&2
+fi
+
 # --- start MediaMTX; on exit kill it AND the ffmpeg children it spawns ---
 # No setsid: $! is genuinely mediamtx's pid. ffmpeg processes are its direct children,
 # so pkill -P reaps them; killing mediamtx too. (On Ctrl-C the terminal also SIGINTs the
