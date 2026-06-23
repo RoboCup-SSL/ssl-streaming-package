@@ -18,18 +18,23 @@ command -v uv >/dev/null 2>&1 || die "uv not found — run ./setup.sh first (it 
 [ -f "$CONFIG" ] || die "$CONFIG not found — run: cp field.toml.example field.toml  (then edit it)"
 [ -x "$ROOT/bin/mediamtx" ] || die "bin/mediamtx not found — run ./setup.sh first"
 
+# Install the WHOLE workspace venv (all members) once, up front. Every step below then runs
+# with `uv run --no-sync`, so no per-command sync can prune a sibling package — the bug where
+# running obs-live-data left mediamtx_controller uninstalled for the next run on some uv versions.
+( cd services && uv sync --all-packages ) >/dev/null 2>&1 || die "uv sync failed — run ./setup.sh first"
+
 # --- config sanity (fail fast, reusing tested code) ---
 # Cameras + TOML validity: generating the MediaMTX config raises on bad camera names/descriptors.
-( cd services && uv run --package mediamtx-controller python -m mediamtx_controller "$CONFIG" "$MTX_YML" ) \
+( cd services && uv run --no-sync python -m mediamtx_controller "$CONFIG" "$MTX_YML" ) \
   || die "invalid [cameras] in field.toml (see message above)"
 # OBS/field/schedule structure: loading FieldConfig raises on missing/malformed sections.
-( cd services && uv run --package configuration python -c \
+( cd services && uv run --no-sync python -c \
   "from configuration.appconfig import FieldConfig; FieldConfig.load_from_file('$CONFIG')" ) \
   || die "invalid field.toml: check [field], [obs], [schedule] (see message above)"
 echo "config OK"
 
 # --- non-fatal nudges for an un-edited config (noob safety net) ---
-( cd services && uv run --package configuration python -m configuration.checks "$CONFIG" ) || true
+( cd services && uv run --no-sync python -m configuration.checks "$CONFIG" ) || true
 
 # --- fixed media path for OBS ---
 # The OBS scene collection references media via /var/tmp/ssl-streaming/... so the same
@@ -62,4 +67,4 @@ echo "Next: import the OBS scene collection, launch OBS, and go live."
 echo "Running obs-live-data — Ctrl-C to stop everything."
 
 # --- obs-live-data in the foreground; on Ctrl-C the trap tears MediaMTX down ---
-( cd services && uv run --package obs-live-data python -m obs_live_data "$CONFIG" )
+( cd services && uv run --no-sync python -m obs_live_data "$CONFIG" )

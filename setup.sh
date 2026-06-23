@@ -27,7 +27,9 @@ fi
 
 # --- Python deps ---
 say "[..]   uv sync (services workspace)"
-( cd services && uv sync >/dev/null )
+# --all-packages installs every workspace member, not just one package's closure, so
+# run.sh's per-step `uv run --no-sync` always finds them all.
+( cd services && uv sync --all-packages >/dev/null )
 say "[ok]   python deps installed"
 
 # --- MediaMTX binary (per platform) ---
