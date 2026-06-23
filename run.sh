@@ -37,7 +37,10 @@ echo "config OK"
 # username. /var/tmp survives reboots (FHS); we (re)create the symlink each run anyway.
 MEDIA_LINK=/var/tmp/ssl-streaming
 if [ -L "$MEDIA_LINK" ] || [ ! -e "$MEDIA_LINK" ]; then
-  ln -sfn "$ROOT" "$MEDIA_LINK"
+  # rm + ln (not `ln -sfn`, whose -n differs on GNU vs BSD/macOS) so re-runs replace
+  # the symlink instead of nesting a link inside it.
+  rm -f "$MEDIA_LINK"
+  ln -s "$ROOT" "$MEDIA_LINK"
 else
   printf '[warn] %s exists and is not a symlink — OBS media paths may not resolve\n' "$MEDIA_LINK" >&2
 fi

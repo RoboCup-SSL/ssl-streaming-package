@@ -9,19 +9,23 @@ def test_rtsp_descriptor_is_a_direct_source():
     }
 
 
-def test_usb_descriptor_runs_ffmpeg_v4l2_publishing_to_the_path():
-    cfg = path_config("commentator", "usb:/dev/video0", rtsp_port=8554)
+def test_usb_descriptor_uses_v4l2_on_linux():
+    cfg = path_config("commentator", "usb:/dev/video0", rtsp_port=8554, system="Linux")
     cmd = cfg["runOnInit"]
-    assert "-f v4l2" in cmd
-    assert "/dev/video0" in cmd
+    assert "-f v4l2 -i /dev/video0" in cmd
     assert "rtsp://localhost:8554/commentator" in cmd
     assert cfg["runOnInitRestart"] is True
+
+
+def test_usb_descriptor_uses_avfoundation_on_macos():
+    cmd = path_config("commentator", "usb:0", system="Darwin")["runOnInit"]
+    assert '-f avfoundation -i "0"' in cmd
 
 
 def test_ffmpeg_children_are_quiet():
     # Quiet flags keep the console readable: no banner, no rewriting progress line,
     # no broken-pipe teardown spew — but a camera that can't open still reports.
-    cmd = path_config("commentator", "usb:/dev/video0")["runOnInit"]
+    cmd = path_config("commentator", "usb:/dev/video0", system="Linux")["runOnInit"]
     for flag in ("-hide_banner", "-loglevel fatal", "-nostdin", "-nostats"):
         assert flag in cmd
 

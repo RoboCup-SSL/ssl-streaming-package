@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import socket
-import struct
 from typing import AsyncIterator, Callable
 
 from data_access.config import GameControllerConfig
@@ -10,6 +9,12 @@ from data_structures.domain import MatchState
 log = logging.getLogger(__name__)
 
 Decode = Callable[[bytes], MatchState]
+
+
+def _membership(address: str) -> bytes:
+    """The 8-byte ip_mreq (multicast group + INADDR_ANY interface) for IP_ADD_MEMBERSHIP.
+    '4s4s' is portable: the BSD/macOS stack rejects the larger '4sl' (ip_mreqn) form."""
+    return socket.inet_aton(address) + socket.inet_aton("0.0.0.0")
 
 
 class _Protocol(asyncio.DatagramProtocol):
@@ -42,10 +47,9 @@ class MulticastRefereeSource:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind(("", self._config.port))
-        membership = struct.pack(
-            "4sl", socket.inet_aton(self._config.address), socket.INADDR_ANY
+        sock.setsockopt(
+            socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, _membership(self._config.address)
         )
-        sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, membership)
         sock.setblocking(False)
         loop = asyncio.get_running_loop()
         self._transport, _ = await loop.create_datagram_endpoint(

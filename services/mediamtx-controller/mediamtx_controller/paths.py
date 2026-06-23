@@ -2,11 +2,14 @@
 
 Descriptors:
 - "rtsp://..." (also rtsps/rtmp/srt/http/https) -> MediaMTX pulls it directly.
-- "usb:<device>"  -> MediaMTX runs ffmpeg (v4l2) to publish the device into the path.
+- "usb:<device>"  -> MediaMTX runs ffmpeg to publish a local capture device. The device
+  is platform-specific: a v4l2 path on Linux (e.g. /dev/video0), an avfoundation index
+  or name on macOS (e.g. 0).
 - "ts:<url>"      -> MediaMTX runs ffmpeg to publish an MPEG-TS stream into the path.
 
 For usb/ts, ffmpeg runs under MediaMTX (runOnInit) so MediaMTX owns the child process.
 """
+import platform
 
 _PULL_SCHEMES = ("rtsp://", "rtsps://", "rtmp://", "rtmps://", "srt://", "http://", "https://")
 
@@ -28,12 +31,21 @@ def _ffmpeg(input_args: str, name: str, rtsp_port: int) -> dict:
     return {"runOnInit": cmd, "runOnInitRestart": True}
 
 
-def path_config(name: str, descriptor: str, rtsp_port: int = 8554) -> dict:
+def _usb_input(device: str, system: str) -> str:
+    """ffmpeg input args for a local capture device, per OS. Linux uses v4l2; macOS uses
+    avfoundation (device is an index/name, quoted as it may contain spaces)."""
+    if system == "Darwin":
+        return f'-f avfoundation -i "{device}"'
+    return f"-f v4l2 -i {device}"
+
+
+def path_config(name: str, descriptor: str, rtsp_port: int = 8554, system: str | None = None) -> dict:
+    system = system or platform.system()
     if descriptor.startswith(_PULL_SCHEMES):
         return {"source": descriptor}
     if descriptor.startswith("usb:"):
         device = descriptor[len("usb:"):]
-        return _ffmpeg(f"-f v4l2 -i {device}", name, rtsp_port)
+        return _ffmpeg(_usb_input(device, system), name, rtsp_port)
     if descriptor.startswith("ts:"):
         url = descriptor[len("ts:"):]
         return _ffmpeg(f"-i {url}", name, rtsp_port)
