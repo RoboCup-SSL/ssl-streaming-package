@@ -18,14 +18,12 @@ command -v uv >/dev/null 2>&1 || die "uv not found — run ./setup.sh first (it 
 [ -f "$CONFIG" ] || die "$CONFIG not found — run: cp field.toml.example field.toml  (then edit it)"
 [ -x "$ROOT/bin/mediamtx" ] || die "bin/mediamtx not found — run ./setup.sh first"
 
-# Install the WHOLE workspace venv (all members) once, up front, then call that venv's
-# interpreter DIRECTLY for every step. We deliberately avoid `uv run` per step: on some uv
-# versions `uv run --package X` prunes the shared venv to X's closure (so running obs-live-data
-# left mediamtx_controller uninstalled for the next run), and `uv run`'s project discovery in a
-# bare workspace varies by version. `uv sync --all-packages` + the venv python is deterministic.
-( cd services && uv sync --all-packages ) >/dev/null 2>&1 || die "uv sync failed — run ./setup.sh first"
+# Use the venv that setup.sh built, and call its interpreter directly. We deliberately do NOT
+# `uv sync` here: a re-sync over an existing venv can corrupt editable installs on some uv
+# versions (it deleted workspace members on macOS). setup.sh owns building the env, once.
 PY="$ROOT/services/.venv/bin/python"
-[ -x "$PY" ] || die "services/.venv not found — run ./setup.sh first"
+{ [ -x "$PY" ] && "$PY" -c "import mediamtx_controller, configuration, obs_live_data" >/dev/null 2>&1; } \
+  || die "Python environment not ready — run ./setup.sh first"
 
 # --- config sanity (fail fast, reusing tested code) ---
 # Cameras + TOML validity: generating the MediaMTX config raises on bad camera names/descriptors.

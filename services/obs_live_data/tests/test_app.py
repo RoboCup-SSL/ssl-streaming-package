@@ -7,9 +7,9 @@ from obs_live_data.app import effective_logos_dir, run_referee
 
 
 def test_effective_logos_dir_resolves_relative_to_base_dir(tmp_path):
-    bundle = tmp_path / "obs-live-data" / "logos"
+    bundle = tmp_path / "obs_live_data" / "logos"
     bundle.mkdir(parents=True)
-    base = str(tmp_path / "obs-live-data")
+    base = str(tmp_path / "obs_live_data")
     assert effective_logos_dir("logos", "", base) == str(bundle)
 
 
@@ -20,7 +20,7 @@ def test_effective_logos_dir_keeps_absolute_dir(tmp_path):
 def test_effective_logos_dir_empty_uses_bundled(tmp_path):
     # An unset logos_dir falls back to the bundled package logos, independent of cwd/base.
     resolved = effective_logos_dir("", "", str(tmp_path))
-    assert resolved.endswith("obs-live-data/logos")
+    assert resolved.endswith("obs_live_data/logos")
     assert os.path.exists(os.path.join(resolved, "no-logo.png"))
 
 

@@ -27,9 +27,10 @@ fi
 
 # --- Python deps ---
 say "[..]   uv sync (services workspace)"
-# --all-packages installs every workspace member, not just one package's closure, so
-# run.sh's per-step `uv run --no-sync` always finds them all.
-( cd services && uv sync --all-packages >/dev/null )
+# Build the venv fresh. --all-packages installs every workspace member; the clean rebuild
+# avoids editable-install corruption that a re-sync over an existing venv can cause on some
+# uv versions. run.sh never re-syncs, so this is the single source of truth for the env.
+( cd services && rm -rf .venv && uv sync --all-packages >/dev/null )
 say "[ok]   python deps installed"
 
 # --- MediaMTX binary (per platform) ---

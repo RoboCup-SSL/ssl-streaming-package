@@ -1155,7 +1155,7 @@
             "id": "image_source",
             "versioned_id": "image_source",
             "settings": {
-                "file": "/var/tmp/ssl-streaming/services/obs-live-data/logos/zjunlict.png"
+                "file": "/var/tmp/ssl-streaming/services/obs_live_data/logos/zjunlict.png"
             },
             "mixers": 0,
             "sync": 0,
@@ -4394,7 +4394,7 @@
             "id": "image_source",
             "versioned_id": "image_source",
             "settings": {
-                "file": "/var/tmp/ssl-streaming/services/obs-live-data/logos/tigers-mannheim.png"
+                "file": "/var/tmp/ssl-streaming/services/obs_live_data/logos/tigers-mannheim.png"
             },
             "mixers": 0,
             "sync": 0,

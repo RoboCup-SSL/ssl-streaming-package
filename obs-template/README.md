@@ -10,7 +10,7 @@ Planned contents:
 - **Transitions** wired to the stinger WebMs rendered by [`../graphics`](../graphics/) (1.3).
 - **Overlay** layers: brand frames/banners (1.5), the commentator-cam layout (1.2), scene
   fades (1.1).
-- Live match overlay: Text and Image sources fed by [`../services/obs-live-data`](../services/obs-live-data/)
+- Live match overlay: Text and Image sources fed by [`../services/obs_live_data`](../services/obs_live_data/)
   over obs-websocket (2.2). See **Live overlay source names** below.
 - Setup notes / per-PC import checklist.
 

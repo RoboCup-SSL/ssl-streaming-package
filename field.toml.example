@@ -12,7 +12,7 @@ name = "A"
 address = "224.5.23.1"
 port = 10003
 
-# Cameras for this field, fed through MediaMTX (see services/mediamtx-controller).
+# Cameras for this field, fed through MediaMTX (see services/mediamtx_controller).
 # Fixed endpoint names: commentator, field-1..field-4. Declare only what this field has.
 # Descriptors: rtsp://… | usb:<device> | ts:<url>. Used by mediamtx-controller, not obs-live-data.
 [cameras]

@@ -74,9 +74,9 @@ Compositions are registered in `src/Root.tsx` (entry point `src/index.ts` → `r
 
 **To add a new stinger variant:** create `src/<Name>/`, reuse `Stinger/Panels` and `Stinger/wipe` where possible, register a new `<Composition>` in `Root.tsx`, add `render:<name>` scripts, and put the animation logic in a pure tested module mirroring `wipe.ts`/`chase.ts`.
 
-## Live match data (now `../services/obs-live-data/` — Python, separate from Remotion)
+## Live match data (now `../services/obs_live_data/` — Python, separate from Remotion)
 
-A small **Flask** server that auto-fills the on-screen match labels for the broadcast, so the operator never types match info into OBS. **Not** part of the Remotion render pipeline. It used to live in `live/` here; in the monorepo it moved to `../services/obs-live-data/`. See `docs/superpowers/specs/2026-06-16-live-match-data-design.md`.
+A small **Flask** server that auto-fills the on-screen match labels for the broadcast, so the operator never types match info into OBS. **Not** part of the Remotion render pipeline. It used to live in `live/` here; in the monorepo it moved to `../services/obs_live_data/`. See `docs/superpowers/specs/2026-06-16-live-match-data-design.md`.
 
 - The operator edits **one file** (`live/data/schedule.json` → per-field `currentId` pointer); the server hot-reloads it (re-reads on mtime change, serves last-good data if a mid-edit save is invalid). Fully manual — no clock-based auto-advance.
 - `live/schedule_logic.py` (pure, **pytest-tested** — the only tested layer): `resolve(data, field, now_dt)` → `{field, division, now, next, secondsUntilNext, countdown}`; `format_countdown` (`M:SS` / `H:MM:SS`, clamp 0). Field A = **Division A**; B0/B1 = **Division B**; group labels/playoff codes repeat across divisions, so matches are keyed by field, never deduped by label.

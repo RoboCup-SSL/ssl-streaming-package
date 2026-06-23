@@ -12,8 +12,8 @@ How to get the whole package running on a streaming PC. Audience: whoever sets u
 |---|---|---|
 | [`graphics/`](../graphics/) | Renders the broadcast graphics (stingers, overlays, standby) | Node + Remotion |
 | [`obs-template/`](../obs-template/) | OBS scene collection to import | OBS |
-| [`services/obs-live-data/`](../services/obs-live-data/) | Pushes live match text + logos to OBS (2.2) | Python |
-| [`services/mediamtx-controller/`](../services/mediamtx-controller/) | Generates the MediaMTX config from `[cameras]` | Python |
+| [`services/obs_live_data/`](../services/obs_live_data/) | Pushes live match text + logos to OBS (2.2) | Python |
+| [`services/mediamtx_controller/`](../services/mediamtx_controller/) | Generates the MediaMTX config from `[cameras]` | Python |
 | [`services/obs-controller/`](../services/obs-controller/) | (MVP2) automates OBS | Python |
 | [`services/ssl-protobuf-listener/`](../services/ssl-protobuf-listener/) | (MVP2) shared SSL protobuf library | Python lib |
 
