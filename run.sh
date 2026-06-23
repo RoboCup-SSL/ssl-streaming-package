@@ -18,23 +18,26 @@ command -v uv >/dev/null 2>&1 || die "uv not found — run ./setup.sh first (it 
 [ -f "$CONFIG" ] || die "$CONFIG not found — run: cp field.toml.example field.toml  (then edit it)"
 [ -x "$ROOT/bin/mediamtx" ] || die "bin/mediamtx not found — run ./setup.sh first"
 
-# Install the WHOLE workspace venv (all members) once, up front. Every step below then runs
-# with `uv run --no-sync`, so no per-command sync can prune a sibling package — the bug where
-# running obs-live-data left mediamtx_controller uninstalled for the next run on some uv versions.
+# Install the WHOLE workspace venv (all members) once, up front, then call that venv's
+# interpreter DIRECTLY for every step. We deliberately avoid `uv run` per step: on some uv
+# versions `uv run --package X` prunes the shared venv to X's closure (so running obs-live-data
+# left mediamtx_controller uninstalled for the next run), and `uv run`'s project discovery in a
+# bare workspace varies by version. `uv sync --all-packages` + the venv python is deterministic.
 ( cd services && uv sync --all-packages ) >/dev/null 2>&1 || die "uv sync failed — run ./setup.sh first"
+PY="$ROOT/services/.venv/bin/python"
+[ -x "$PY" ] || die "services/.venv not found — run ./setup.sh first"
 
 # --- config sanity (fail fast, reusing tested code) ---
 # Cameras + TOML validity: generating the MediaMTX config raises on bad camera names/descriptors.
-( cd services && uv run --no-sync python -m mediamtx_controller "$CONFIG" "$MTX_YML" ) \
+"$PY" -m mediamtx_controller "$CONFIG" "$MTX_YML" \
   || die "invalid [cameras] in field.toml (see message above)"
 # OBS/field/schedule structure: loading FieldConfig raises on missing/malformed sections.
-( cd services && uv run --no-sync python -c \
-  "from configuration.appconfig import FieldConfig; FieldConfig.load_from_file('$CONFIG')" ) \
+"$PY" -c "from configuration.appconfig import FieldConfig; FieldConfig.load_from_file('$CONFIG')" \
   || die "invalid field.toml: check [field], [obs], [schedule] (see message above)"
 echo "config OK"
 
 # --- non-fatal nudges for an un-edited config (noob safety net) ---
-( cd services && uv run --no-sync python -m configuration.checks "$CONFIG" ) || true
+"$PY" -m configuration.checks "$CONFIG" || true
 
 # --- fixed media path for OBS ---
 # The OBS scene collection references media via /var/tmp/ssl-streaming/... so the same
@@ -67,4 +70,4 @@ echo "Next: import the OBS scene collection, launch OBS, and go live."
 echo "Running obs-live-data — Ctrl-C to stop everything."
 
 # --- obs-live-data in the foreground; on Ctrl-C the trap tears MediaMTX down ---
-( cd services && uv run --no-sync python -m obs_live_data "$CONFIG" )
+"$PY" -m obs_live_data "$CONFIG"
