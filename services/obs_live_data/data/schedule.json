@@ -45,7 +45,7 @@
       "day": "2026-07-02",
       "division": "A",
       "field": "A",
-      "time": "16:00",
+      "time": "14:30",
       "label": "G1",
       "teamA": "RoboDragons",
       "teamB": "Ri-one"
@@ -125,7 +125,7 @@
       "day": "2026-07-02",
       "division": "B",
       "field": "B0",
-      "time": "16:30",
+      "time": "15:00",
       "label": "G3",
       "teamA": "The A-Team",
       "teamB": "Traps"
@@ -185,7 +185,7 @@
       "day": "2026-07-02",
       "division": "B",
       "field": "B1",
-      "time": "16:00",
+      "time": "14:30",
       "label": "G4",
       "teamA": "UBC Thunderbots",
       "teamB": "SeeGoals"

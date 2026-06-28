@@ -4,7 +4,7 @@
 ### 10:00 | G2 | ZJUNLict | LUHBots
 ### 11:30 | G1 | TIGERs | ER-Force
 ### 13:00 | G2 | ZJUNLict | RoboCin
-### 16:00 | G1 | RoboDragons | Ri-one
+### 14:30 | G1 | RoboDragons | Ri-one
 ### 17:30 | G2 | KIKS | LUHBots
 ### 19:00 | G1 | RoboDragons | ER-Force
 ### 20:30 | G2 | KIKS | RoboCin
@@ -13,14 +13,14 @@
 ### 10:30 | G3 | Warthog Robotics | Traps
 ### 12:00 | G1 | The Bots | TritonBots
 ### 13:30 | G1 | Delft Mercurians | GreenTea
-### 16:30 | G3 | The A-Team | Traps
+### 15:00 | G3 | The A-Team | Traps
 ### 18:00 | G1 | Delft Mercurians | TritonBots
 ## Field B1
 ### 08:30 | G2 | RoboJackets | RCJ SSL Team
 ### 10:00 | G4 | ITAndroids | SeeGoals
 ### 11:30 | G2 | RoboJackets | TurtleRabbit
 ### 13:00 | G2 | NAMeC | RCJ SSL Team
-### 16:00 | G4 | UBC Thunderbots | SeeGoals
+### 14:30 | G4 | UBC Thunderbots | SeeGoals
 ### 17:30 | G2 | NAMeC | TurtleRabbit
 # Friday July 3rd
 ## Field A
