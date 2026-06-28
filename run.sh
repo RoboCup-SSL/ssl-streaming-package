@@ -38,12 +38,12 @@ echo "config OK"
 "$PY" -m configuration.checks "$CONFIG" || true
 
 # --- fixed media path for OBS ---
-# The OBS scene collection references media via /var/tmp/ssl-streaming/... so the same
+# The OBS scene collection references media via /var/tmp/ssl-streaming-package/... so the same
 # scenes.json works on every field PC regardless of where the repo was cloned or the
 # username. /var/tmp survives reboots (FHS); we (re)create the symlink each run anyway.
 # NOTE: setup.sh duplicates this block so the link exists before the first run — keep them
 # in sync if you change it.
-MEDIA_LINK=/var/tmp/ssl-streaming
+MEDIA_LINK=/var/tmp/ssl-streaming-package
 if [ -L "$MEDIA_LINK" ] || [ ! -e "$MEDIA_LINK" ]; then
   # rm + ln (not `ln -sfn`, whose -n differs on GNU vs BSD/macOS) so re-runs replace
   # the symlink instead of nesting a link inside it.

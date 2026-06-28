@@ -101,10 +101,10 @@ install_mediamtx
 
 # --- fixed media path for OBS ---
 # Create it now (not just in run.sh) so OBS scenes can be built before the first run. The OBS
-# scene collection references media via /var/tmp/ssl-streaming/... so the same scenes.json
+# scene collection references media via /var/tmp/ssl-streaming-package/... so the same scenes.json
 # works on every field PC regardless of where the repo was cloned or the username. /var/tmp
 # survives reboots (FHS). NOTE: run.sh duplicates this block — keep them in sync if you change it.
-MEDIA_LINK=/var/tmp/ssl-streaming
+MEDIA_LINK=/var/tmp/ssl-streaming-package
 if [ -L "$MEDIA_LINK" ] || [ ! -e "$MEDIA_LINK" ]; then
   # rm + ln (not `ln -sfn`, whose -n differs on GNU vs BSD/macOS) so re-runs replace
   # the symlink instead of nesting a link inside it.

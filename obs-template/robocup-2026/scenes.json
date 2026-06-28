@@ -1155,7 +1155,7 @@
             "id": "image_source",
             "versioned_id": "image_source",
             "settings": {
-                "file": "/var/tmp/ssl-streaming/services/obs_live_data/logos/zjunlict.png"
+                "file": "/var/tmp/ssl-streaming-package/services/obs_live_data/logos/zjunlict.png"
             },
             "mixers": 0,
             "sync": 0,
@@ -2289,7 +2289,7 @@
             "id": "image_source",
             "versioned_id": "image_source",
             "settings": {
-                "file": "/var/tmp/ssl-streaming/field_screenshot.png"
+                "file": "/var/tmp/ssl-streaming-package/field_screenshot.png"
             },
             "mixers": 0,
             "sync": 0,
@@ -2350,7 +2350,7 @@
             "id": "image_source",
             "versioned_id": "image_source",
             "settings": {
-                "file": "/var/tmp/ssl-streaming/graphics/assets/robocup-2026/png/robocup_english_horizontal.png"
+                "file": "/var/tmp/ssl-streaming-package/graphics/assets/robocup-2026/png/robocup_english_horizontal.png"
             },
             "mixers": 0,
             "sync": 0,
@@ -2376,7 +2376,7 @@
             "id": "image_source",
             "versioned_id": "image_source",
             "settings": {
-                "file": "/var/tmp/ssl-streaming/graphics/assets/robocup-2026/png/robocup_korean_horizontal.png"
+                "file": "/var/tmp/ssl-streaming-package/graphics/assets/robocup-2026/png/robocup_korean_horizontal.png"
             },
             "mixers": 0,
             "sync": 0,
@@ -2470,7 +2470,7 @@
             "id": "image_source",
             "versioned_id": "image_source",
             "settings": {
-                "file": "/var/tmp/ssl-streaming/graphics/assets/robocup-2026/png/pattern_oblong_2.png"
+                "file": "/var/tmp/ssl-streaming-package/graphics/assets/robocup-2026/png/pattern_oblong_2.png"
             },
             "mixers": 0,
             "sync": 0,
@@ -2496,7 +2496,7 @@
             "id": "image_source",
             "versioned_id": "image_source",
             "settings": {
-                "file": "/var/tmp/ssl-streaming/graphics/assets/robocup-2026/png/pattern_square_3_wide.png"
+                "file": "/var/tmp/ssl-streaming-package/graphics/assets/robocup-2026/png/pattern_square_3_wide.png"
             },
             "mixers": 0,
             "sync": 0,
@@ -2522,7 +2522,7 @@
             "id": "image_source",
             "versioned_id": "image_source",
             "settings": {
-                "file": "/var/tmp/ssl-streaming/graphics/assets/robocup-2026/png/robocup_english_horizontal.png"
+                "file": "/var/tmp/ssl-streaming-package/graphics/assets/robocup-2026/png/robocup_english_horizontal.png"
             },
             "mixers": 0,
             "sync": 0,
@@ -4394,7 +4394,7 @@
             "id": "image_source",
             "versioned_id": "image_source",
             "settings": {
-                "file": "/var/tmp/ssl-streaming/services/obs_live_data/logos/tigers-mannheim.png"
+                "file": "/var/tmp/ssl-streaming-package/services/obs_live_data/logos/tigers-mannheim.png"
             },
             "mixers": 0,
             "sync": 0,

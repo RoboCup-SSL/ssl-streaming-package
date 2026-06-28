@@ -70,23 +70,25 @@ The RoboCup 2026 template, exported from OBS:
   and `service.json.example`. **The real `service.json` is git-ignored** (it holds the per-field
   stream key) — copy the `.example` to `service.json` on each field PC and set the server/key.
 
-### Media paths — the `/var/tmp/ssl-streaming` symlink
+### Media paths — the `/var/tmp/ssl-streaming-package` symlink
 
 OBS bakes **absolute** media paths into a scene collection and expands no env vars, so a path
 like `/home/<you>/.../graphics/...` wouldn't be portable across field PCs. Instead `scenes.json`
-references everything under a **fixed, username-independent path**: `/var/tmp/ssl-streaming/…`.
-`run.sh` creates `ln -s <repo> /var/tmp/ssl-streaming` each run, so that path resolves to this
-machine's clone wherever it lives. (`/var/tmp` is the FHS location for files preserved across
-reboots.) Net effect: the **same `scenes.json` works on every box, unchanged** — just run
-`./run.sh` before launching OBS.
+references everything under a **fixed, username-independent path**: `/var/tmp/ssl-streaming-package/…`.
+`setup.sh` and `run.sh` both create `ln -s <repo> /var/tmp/ssl-streaming-package`, so that path
+resolves to this machine's clone wherever it lives. (`/var/tmp` is the FHS location for files
+preserved across reboots.) `setup.sh` makes it once at install time — so you can build/import OBS
+scenes before the first run — and `run.sh` (re)creates it on every run. Net effect: the **same
+`scenes.json` works on every box, unchanged** — just run `./setup.sh` (or `./run.sh`) before
+launching OBS.
 
 > **Two assets still external (WIP):** `scenes.json` still points one source at
 > `…/projects/remotion/out/replay-rewind.webm` (render it and drop it in-repo, then repoint to
-> `/var/tmp/ssl-streaming/…`), and `field_screenshot.png` is a local placeholder. Everything
+> `/var/tmp/ssl-streaming-package/…`), and `field_screenshot.png` is a local placeholder. Everything
 > else (RC2026 brand art, team logos) resolves through the symlink.
 
 Re-export workflow: name the OBS scene collection `robocup-2026` so exports land as
-`robocup-2026.json`; before committing, rewrite the baked paths to `/var/tmp/ssl-streaming/…`
+`robocup-2026.json`; before committing, rewrite the baked paths to `/var/tmp/ssl-streaming-package/…`
 (OBS writes them as the absolute path you picked the file from), then overwrite `scenes.json`.
 
 ## Status
