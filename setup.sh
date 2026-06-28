@@ -2,7 +2,8 @@
 # One-time setup for a field PC. Installs Python deps and the MediaMTX binary,
 # and reports any missing prerequisites. Safe to re-run.
 set -euo pipefail
-cd "$(dirname "$0")"
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+cd "$ROOT"
 
 say()  { printf '%s\n' "$*"; }
 warn() { printf '[!!]   %s\n' "$*" >&2; }
@@ -97,6 +98,22 @@ install_mediamtx() {
   say "[ok]   mediamtx ${ver} -> bin/mediamtx"
 }
 install_mediamtx
+
+# --- fixed media path for OBS ---
+# Create it now (not just in run.sh) so OBS scenes can be built before the first run. The OBS
+# scene collection references media via /var/tmp/ssl-streaming/... so the same scenes.json
+# works on every field PC regardless of where the repo was cloned or the username. /var/tmp
+# survives reboots (FHS). NOTE: run.sh duplicates this block — keep them in sync if you change it.
+MEDIA_LINK=/var/tmp/ssl-streaming
+if [ -L "$MEDIA_LINK" ] || [ ! -e "$MEDIA_LINK" ]; then
+  # rm + ln (not `ln -sfn`, whose -n differs on GNU vs BSD/macOS) so re-runs replace
+  # the symlink instead of nesting a link inside it.
+  rm -f "$MEDIA_LINK"
+  ln -s "$ROOT" "$MEDIA_LINK"
+  say "[ok]   media path $MEDIA_LINK -> $ROOT"
+else
+  warn "$MEDIA_LINK exists and is not a symlink — OBS media paths may not resolve"
+fi
 
 # --- runtime prerequisites the deployer must have ---
 have ffmpeg && say "[ok]   ffmpeg" || say "[!!]   ffmpeg MISSING — install it (needed for USB/MPEG-TS cameras)"
