@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Top-down RoboCup SSL robot, extracted from src/ChaseStinger/RobotTop.tsx.
+     Geometry in mm, 1:1 with the spec: body R85 with a flat front (chord at
+     y=-55, corners x=±64.807), centre dot r25 (team colour), four ID dots r20
+     at radius 65. Flat front points UP (no travel rotation).
+     Colours = the default blue robot (team #1e64ff; ID dots FL/FR/RL/RR). -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-85 -85 170 170" width="170" height="170">
+  <path d="M -64.807 -55 L 64.807 -55 A 85 85 0 1 1 -64.807 -55 Z" fill="#1a1a1e" />
+  <circle cx="0" cy="0" r="25" fill="#1e64ff" />
+  <circle cx="-54.772" cy="-35" r="20" fill="#00d000" />
+  <circle cx="54.772" cy="-35" r="20" fill="#ff20c0" />
+  <circle cx="-35" cy="54.772" r="20" fill="#00d000" />
+  <circle cx="35" cy="54.772" r="20" fill="#ff20c0" />
+</svg>

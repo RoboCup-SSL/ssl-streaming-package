@@ -12,6 +12,8 @@ import {Standby} from './Standby/Standby';
 import {BreathingBackground} from './Standby/BreathingBackground';
 import {NextMatch} from './Standby/NextMatch';
 import {standbySchema, breathingBackgroundSchema, nextMatchSchema} from './Standby/schema';
+import {Robot} from './Robot/Robot';
+import {robotCompositionSchema} from './Robot/schema';
 import {FRAME, TIMING, BRAND_BARS, STANDBY} from './theme';
 import {DIMENSIONS, FPS, DURATION, DEFAULT_PALETTE} from './Stinger/constants';
 
@@ -149,6 +151,25 @@ export const RemotionRoot: React.FC = () => {
           bands: BRAND_BARS,
           loopDuration: STANDBY.loopDuration,
           showSlotGuide: true,
+        }}
+      />
+      {/* Just the SSL robot on a TRANSPARENT square canvas -> a PNG for OBS. Defaults
+          to the blue, facing-up robot (matches assets/robot_top.svg). The robot geometry
+          is the same RobotTop used by the chase stingers. */}
+      <Composition
+        id="Robot"
+        component={Robot}
+        durationInFrames={1}
+        fps={FPS}
+        width={1080}
+        height={1080}
+        schema={robotCompositionSchema}
+        defaultProps={{
+          teamColor: '#1e64ff',
+          idDots: ['#00d000', '#ff20c0', '#00d000', '#ff20c0'] as [string, string, string, string],
+          bodyColor: '#1a1a1e',
+          size: 900,
+          orientation: 'up' as const,
         }}
       />
     </>

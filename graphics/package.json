@@ -17,6 +17,7 @@
     "render:bg": "remotion render BreathingBackground out/breathing-background.mp4 --codec=h264 --pixel-format=yuv420p --image-format=png",
     "render:bg:preview": "remotion render BreathingBackground out/breathing-background-preview.mp4 --codec=h264 --pixel-format=yuv420p --image-format=png --scale=0.5",
     "render:next-match": "remotion still NextMatch out/next-match.png --frame=0",
+    "render:robot": "remotion still Robot out/robot.png --frame=0",
     "render:standby": "remotion render Standby out/standby.mp4 --codec=h264 --pixel-format=yuv420p --image-format=png",
     "render:standby:preview": "remotion render Standby out/standby-preview.mp4 --codec=h264 --pixel-format=yuv420p --image-format=png --scale=0.5",
     "test": "vitest run"
