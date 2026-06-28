@@ -25,3 +25,7 @@ auto.key
 
 # OBS profile stream config — holds the per-field stream key; commit service.json.example only
 obs-template/**/profile/service.json
+
+# YouTube Data API OAuth credentials (services/youtube) — never commit
+**/client_secret.json
+**/youtube_token.json
