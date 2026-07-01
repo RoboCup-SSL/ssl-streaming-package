@@ -50,45 +50,65 @@ class YouTubeClient:
             token.write_text(creds.to_json())
         return cls(build("youtube", "v3", credentials=creds))
 
-    def scheduled_start_times(self) -> set[str]:
-        """RFC3339 start times of all upcoming/active broadcasts already on the channel."""
-        taken: set[str] = set()
+    def channel(self) -> dict:
+        """The authenticated channel: {id, title} — used to confirm which account is in use."""
+        resp = self._yt.channels().list(part="snippet", mine=True).execute()
+        items = resp.get("items", [])
+        if not items:
+            raise RuntimeError("authenticated account has no YouTube channel")
+        return {"id": items[0]["id"], "title": items[0]["snippet"]["title"]}
+
+    def list_broadcasts(self) -> list[dict]:
+        """All upcoming/active/completed broadcasts on the channel, newest config last.
+
+        Each item: {id, title, start (RFC3339 or None), privacy, status} — `status`
+        is the lifecycle (created/ready/live/complete/…).
+        """
+        out: list[dict] = []
         page = None
         while True:
             resp = (
                 self._yt.liveBroadcasts()
-                .list(part="snippet", broadcastType="all", mine=True,
+                .list(part="snippet,status", broadcastType="all", mine=True,
                       maxResults=50, pageToken=page)
                 .execute()
             )
             for item in resp.get("items", []):
-                t = item["snippet"].get("scheduledStartTime")
-                if t:
-                    taken.add(t)
+                out.append(
+                    {
+                        "id": item["id"],
+                        "title": item["snippet"].get("title", ""),
+                        "start": item["snippet"].get("scheduledStartTime"),
+                        "privacy": item["status"].get("privacyStatus", ""),
+                        "status": item["status"].get("lifeCycleStatus", ""),
+                    }
+                )
             page = resp.get("nextPageToken")
             if not page:
-                return taken
+                return out
 
-    def reusable_streams_by_title(self, titles: list[str]) -> dict[str, str]:
-        """Map each wanted title -> existing reusable stream id (missing titles omitted)."""
-        wanted = set(titles)
-        found: dict[str, str] = {}
+    def list_streams(self) -> list[dict]:
+        """All ingestion streams the caller owns: {id, title, key}."""
+        out: list[dict] = []
         page = None
         while True:
             resp = (
                 self._yt.liveStreams()
-                .list(part="id,snippet", mine=True, maxResults=50, pageToken=page)
+                .list(part="id,snippet,cdn", mine=True, maxResults=50, pageToken=page)
                 .execute()
             )
             for item in resp.get("items", []):
-                title = item["snippet"]["title"]
-                if title in wanted:
-                    found[title] = item["id"]
+                out.append({
+                    "id": item["id"],
+                    "title": item["snippet"]["title"],
+                    "key": item["cdn"]["ingestionInfo"]["streamName"],
+                })
             page = resp.get("nextPageToken")
             if not page:
-                return found
+                return out
 
-    def create_reusable_stream(self, title: str) -> str:
+    def create_stream(self, title: str) -> dict:
+        """Create a reusable RTMP stream; returns {id, title, key}."""
         resp = (
             self._yt.liveStreams()
             .insert(
@@ -105,15 +125,14 @@ class YouTubeClient:
             )
             .execute()
         )
-        return resp["id"]
-
-    def stream_key(self, stream_id: str) -> str:
-        """RTMP ingestion key for a stream (what OBS needs in service.json)."""
-        resp = self._yt.liveStreams().list(part="cdn", id=stream_id).execute()
-        return resp["items"][0]["cdn"]["ingestionInfo"]["streamName"]
+        return {
+            "id": resp["id"],
+            "title": title,
+            "key": resp["cdn"]["ingestionInfo"]["streamName"],
+        }
 
     def create_broadcast(self, *, title: str, description: str, start: datetime,
-                         privacy: str) -> str:
+                         privacy: str, auto_start: bool, auto_stop: bool) -> str:
         resp = (
             self._yt.liveBroadcasts()
             .insert(
@@ -128,12 +147,61 @@ class YouTubeClient:
                         "privacyStatus": privacy,
                         "selfDeclaredMadeForKids": False,
                     },
-                    "contentDetails": {"enableAutoStart": True, "enableAutoStop": True},
+                    "contentDetails": {"enableAutoStart": auto_start,
+                                       "enableAutoStop": auto_stop},
                 },
             )
             .execute()
         )
         return resp["id"]
+
+    def set_video_metadata(self, video_id: str, *, title: str, description: str,
+                          tags: list[str], category_id: str) -> None:
+        """Set tags (+ re-affirm title/description/category) on the broadcast's video.
+
+        Tags live on the *video* resource, not the liveBroadcast snippet, so they
+        need a separate videos.update. videos.update replaces the snippet, so title
+        and categoryId (both required) and description are sent again to preserve them.
+        """
+        self._yt.videos().update(
+            part="snippet",
+            body={
+                "id": video_id,
+                "snippet": {
+                    "title": title[:100],
+                    "description": description,
+                    "tags": tags,
+                    "categoryId": category_id,
+                },
+            },
+        ).execute()
+
+    def find_playlist_id(self, title: str) -> str | None:
+        """Id of the caller's playlist with this exact title, or None."""
+        page = None
+        while True:
+            resp = (
+                self._yt.playlists()
+                .list(part="id,snippet", mine=True, maxResults=50, pageToken=page)
+                .execute()
+            )
+            for item in resp.get("items", []):
+                if item["snippet"]["title"] == title:
+                    return item["id"]
+            page = resp.get("nextPageToken")
+            if not page:
+                return None
+
+    def add_to_playlist(self, playlist_id: str, video_id: str) -> None:
+        self._yt.playlistItems().insert(
+            part="snippet",
+            body={
+                "snippet": {
+                    "playlistId": playlist_id,
+                    "resourceId": {"kind": "youtube#video", "videoId": video_id},
+                }
+            },
+        ).execute()
 
     def bind(self, broadcast_id: str, stream_id: str) -> None:
         self._yt.liveBroadcasts().bind(

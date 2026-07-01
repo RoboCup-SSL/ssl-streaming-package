@@ -15,6 +15,9 @@ _resources/
 # Per-deployment field config (holds OBS password); commit field.toml.example instead
 field.toml
 
+# Per-event YouTube config; commit youtube.toml.example instead
+youtube.toml
+
 # Downloaded / generated at deploy time
 bin/
 mediamtx.yml
@@ -29,3 +32,14 @@ obs-template/**/profile/service.json
 # YouTube Data API OAuth credentials (services/youtube) — never commit
 **/client_secret.json
 **/youtube_token.json
+# Per-match RTMP stream keys emitted by youtube.schedule — secrets, never commit
+**/stream_keys.json
+
+# Ad-hoc backups — not tracked
+services/obs_live_data/logos_backup.zip
+*_backup.svg
+
+# Generated thumbnail outputs — regenerate with generate_thumbnails.py
+services/obs_live_data/youtube_thumbnails/png/
+services/obs_live_data/youtube_thumbnails/svg/
+services/obs_live_data/youtube_thumbnails/jpg/

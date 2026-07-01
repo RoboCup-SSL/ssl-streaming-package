@@ -1,0 +1,67 @@
+# Per-event YouTube config. Copy to youtube.toml in the repo root and edit.
+# `python -m youtube.schedule` reads this; it's the ONE file you change per event
+# (the OAuth credentials are separate files — see [auth]).
+#
+# Templates below may use these placeholders, filled per match:
+#   {division} {field} {teamA} {teamB} {phase} {day} {time}
+# where {phase} is e.g. "Day 1 - Group Phase" and {day}/{time} come from schedule.json.
+
+[event]
+# Offset (hours) of the schedule.json times from UTC. Incheon = KST = +9.
+tz_offset_hours = 9
+
+[broadcast]
+privacy = "public"            # public | unlisted | private
+category_id = "28"            # YouTube category; 28 = Science & Technology
+tags = ["robocup", "robotics", "soccer", "small size league", "ssl", "incheon", "robot soccer"]
+playlist = "RoboCup 2026 Incheon"   # playlist title or PL… id; "" to disable
+
+# OBS Start Streaming makes the broadcast go live (auto_start). auto_stop OFF means a
+# dropped feed (network blip) does NOT end the match — end it deliberately instead
+# (OBS Stop via the future controller, or YouTube Studio's "End stream").
+auto_start = true
+auto_stop = false
+
+title = "RoboCup 2026 Incheon - {teamA} vs {teamB} - Div {division} - {phase}"
+
+[broadcast.description]
+# `header` is rendered per match (placeholders); `body` is shared boilerplate
+# appended after a blank line to every video.
+header = """\
+RoboCup 2026 Small Size League
+{phase} — Field {field} (Division {division})
+{teamA} vs {teamB}
+Scheduled start: {day} {time} KST"""
+
+body = """\
+RoboCup 2026 — Small Size League (SSL), Incheon, South Korea.
+
+The RoboCup Small Size League is one of the oldest RoboCup Soccer leagues. It is
+focused on intelligent multi-agent coordination and control in a highly dynamic
+environment. Matches are 11 vs. 11 (6 vs. 6 in Division B) played with an orange
+golf ball. Robots are built by the participating teams within the dimensions and
+constraints defined in the rules.
+
+A shared overhead vision system, SSL-Vision, tracks every object on the field.
+Each team runs its own off-field computers for the coordination and control of its
+robots, communicating wirelessly via dedicated radio units — there is no human
+control during play.
+
+RoboCup is an international scientific initiative with the goal of advancing the
+state of the art of intelligent robots, working toward its 1997 challenge: to field
+a team of robots capable of beating the human soccer World Cup champions by 2050.
+
+Full schedule, brackets and results: https://ssl.robocup.org/
+More about RoboCup: https://www.robocup.org/
+
+#RoboCup #RoboCup2026 #SmallSizeLeague #SSL #RobotSoccer #Robotics"""
+
+[paths]
+# Relative paths resolve next to this file (the repo root).
+schedule = "services/obs_live_data/data/schedule.json"
+thumbnails = "services/obs_live_data/youtube_thumbnails/png"
+
+[auth]
+# OAuth client + cached token. Relative paths resolve next to this file.
+client_secret = "services/youtube/client_secret.json"
+token = "services/youtube/youtube_token.json"

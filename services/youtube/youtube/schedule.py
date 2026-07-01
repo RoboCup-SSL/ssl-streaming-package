@@ -3,42 +3,43 @@
     python -m youtube.schedule --dry-run      # print the plan, no API calls
     python -m youtube.schedule                # create the broadcasts
 
+All event settings (title/description templates, tags, playlist, streams, paths,
+credentials) come from youtube.toml — see youtube.toml.example. Nothing here is
+hardcoded per event.
+
 For every *real* match (placeholder bracket slots like "W1.A vs L1.B" are skipped,
 same rule as obs_live_data/youtube_thumbnails/generate_thumbnails.py) it creates a
 scheduled liveBroadcast with the matching custom thumbnail.
 
-Field economy: the 3 fields (A, B0, B1) never overlap on their own field, so we
-create ONE reusable ingestion stream per field and bind every broadcast to its
-field's stream. ~150 quota units/match, well under the 10k/day cap, and each field
-gets a stable RTMP key for its obs-template service.json.
+One key per match: each broadcast gets its own dedicated RTMP stream (key), so the
+key↔match mapping is unambiguous — OBS pushes a match's key and that match goes live
+(enableAutoStart). The match_id -> key map is written to stream_keys.json for the
+(future) script that injects the right key into OBS per match. With auto_stop off, a
+dropped feed never ends a match; end it deliberately (OBS Stop via the controller, or
+Studio).
 
-Idempotent: existing broadcasts are fetched first and any match whose start time is
-already taken is skipped — so hand-scheduled matches are left alone and re-runs
-don't duplicate.
+Idempotent: existing broadcasts are fetched first and a match is skipped if one with
+the same start time AND both team names already exists — so hand-scheduled matches
+are left alone and re-runs don't duplicate.
 """
 
 import argparse
 import json
 import re
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from pathlib import Path
 
-from .client import SCOPES, YouTubeClient, _to_utc_z  # noqa: F401  (SCOPES re-exported for callers)
+from . import config
+from .client import YouTubeClient, _to_utc_z
 
-HERE = Path(__file__).resolve().parent
-_OBS_LIVE_DATA = HERE / ".." / ".." / "obs_live_data"
-
-# RoboCup 2026 is in Incheon, KR. schedule.json times are local (KST = UTC+9).
-KST = timezone(timedelta(hours=9))
-
-# Reusable ingestion stream per field; matches on one field never overlap.
-FIELDS = ["A", "B0", "B1"]
+# match_id -> key map for the OBS key-injection script; next to the package (gitignored).
+KEY_MAP_PATH = config.REPO_ROOT / "services" / "youtube" / "stream_keys.json"
 
 
 # --- schedule -> presentation helpers -------------------------------------
-# These mirror generate_thumbnails.py so titles/thumbnail filenames line up
-# exactly. Kept as a copy (not an import) because that module runs work at
-# import time; keep the two in sync if its rules change.
+# skip_match / day_label mirror generate_thumbnails.py so titles and thumbnail
+# filenames line up exactly. Kept as a copy (that module runs work at import time);
+# keep the two in sync if its rules change.
 def skip_match(team_a: str, team_b: str) -> bool:
     """True for bracket-placeholder slots that have no known teams yet."""
     return bool(
@@ -58,62 +59,80 @@ def day_label(label: str, first_day: str, day: str) -> str:
     return f"Day {n_days} - {label}"
 
 
-def _start_datetime(match: dict) -> datetime:
-    return datetime.strptime(
-        f"{match['day']} {match['time']}", "%Y-%m-%d %H:%M"
-    ).replace(tzinfo=KST)
-
-
-def build_plan(schedule_path: Path, thumbs_dir: Path) -> list[dict]:
+def build_plan(cfg: config.YoutubeConfig) -> list[dict]:
     """Real matches to schedule, sorted by start, with derived title/desc/thumbnail."""
-    schedule = json.loads(schedule_path.read_text())["schedule"]
+    schedule = json.loads(cfg.schedule_path.read_text())["schedule"]
     first_day = schedule[0]["day"]
     plan = []
     for match in schedule:
         if skip_match(match["teamA"], match["teamB"]):
             continue
         phase = day_label(match["label"], first_day, match["day"])
-        start = _start_datetime(match)
+        start = datetime.strptime(
+            f"{match['day']} {match['time']}", "%Y-%m-%d %H:%M"
+        ).replace(tzinfo=cfg.tz)
+        fields = {
+            "division": match["division"], "field": match["field"],
+            "teamA": match["teamA"], "teamB": match["teamB"],
+            "phase": phase, "day": match["day"], "time": match["time"],
+        }
+        description = cfg.description_header.format(**fields)
+        if cfg.description_body.strip():
+            description += f"\n\n{cfg.description_body.strip()}"
         plan.append(
             {
                 "id": match["id"],
                 "field": match["field"],
+                "teamA": match["teamA"],
+                "teamB": match["teamB"],
                 "start": start,
-                "title": (
-                    f"RoboCup 2026 SSL — Division {match['division']}: "
-                    f"{match['teamA']} vs {match['teamB']} ({phase})"
-                ),
-                "description": (
-                    f"RoboCup 2026 Small Size League\n"
-                    f"{phase} — Field {match['field']} (Division {match['division']})\n"
-                    f"{match['teamA']} vs {match['teamB']}\n"
-                    f"Scheduled start: {start.strftime('%Y-%m-%d %H:%M')} KST"
-                ),
+                "title": cfg.title.format(**fields),
+                "description": description,
                 # generate_thumbnails.py names files: f"{day}_{teamA}_vs_{teamB}.png"
-                "thumbnail": thumbs_dir / f"{phase}_{match['teamA']}_vs_{match['teamB']}.png",
+                "thumbnail": cfg.thumbnails_dir / f"{phase}_{match['teamA']}_vs_{match['teamB']}.png",
             }
         )
     plan.sort(key=lambda m: m["start"])
     return plan
 
 
-def _field_stream_title(field: str) -> str:
-    return f"SSL Field {field}"
+def _confirm(prompt: str) -> bool:
+    while True:
+        ans = input(prompt).strip().lower()
+        if ans in ("y", "yes"):
+            return True
+        if ans in ("n", "no"):
+            return False
+        print("    please answer y or n")
+
+
+def _already_scheduled(match: dict, existing: list[dict]) -> dict | None:
+    """An existing broadcast for this match, or None.
+
+    Matched by same start time AND both team names appearing in the title
+    (case-insensitive). Start time alone is NOT unique — fields run matches in
+    parallel — so we also require the teams, which also tolerates hand-typed title
+    variants (e.g. 'luhbots' vs 'LUHBots')."""
+    start_iso = _to_utc_z(match["start"])
+    a, b = match["teamA"].lower(), match["teamB"].lower()
+    for bc in existing:
+        title = bc["title"].lower()
+        if bc["start"] == start_iso and a in title and b in title:
+            return bc
+    return None
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Batch-schedule RoboCup YouTube livestreams.")
-    ap.add_argument("--schedule", type=Path,
-                    default=_OBS_LIVE_DATA / "data" / "schedule.json")
-    ap.add_argument("--thumbnails", type=Path,
-                    default=_OBS_LIVE_DATA / "youtube_thumbnails" / "png")
-    ap.add_argument("--client-secret", type=Path, default=HERE / "client_secret.json")
-    ap.add_argument("--token", type=Path, default=HERE / "youtube_token.json")
-    ap.add_argument("--privacy", choices=["public", "unlisted", "private"], default="public")
+    ap.add_argument("--config", type=Path, default=None,
+                    help="Path to youtube.toml (default: repo-root youtube.toml).")
     ap.add_argument("--dry-run", action="store_true", help="Print the plan; make no API calls.")
+    ap.add_argument("-y", "--yes", action="store_true",
+                    help="Skip the per-match [y/n] prompt and schedule all of them.")
     args = ap.parse_args()
 
-    plan = build_plan(args.schedule.resolve(), args.thumbnails.resolve())
+    cfg = config.load(args.config)
+    plan = build_plan(cfg)
     print(f"{len(plan)} real matches in schedule (placeholder slots skipped).\n")
 
     missing = [m for m in plan if not m["thumbnail"].exists()]
@@ -122,52 +141,92 @@ def main() -> None:
               f"(run generate_thumbnails.py): they'll be scheduled without one.\n")
 
     if args.dry_run:
-        print("Streams (one reusable RTMP key per field): " + ", ".join(FIELDS))
+        print("Streams: a dedicated RTMP key per match (1 key ↔ 1 match).")
+        print(f"auto_start={cfg.auto_start}  auto_stop={cfg.auto_stop}  "
+              f"(OBS Start = go live; ending is deliberate when auto_stop is off)")
+        print("Tags on every video: " + ", ".join(cfg.tags))
+        if cfg.playlist:
+            print(f"Playlist: each video added to '{cfg.playlist}'")
         for m in plan:
             thumb = "✓" if m["thumbnail"].exists() else "—"
-            print(f"  [{m['field']}] {m['start'].strftime('%a %m-%d %H:%M')} KST  "
+            print(f"  [{m['field']}] {m['start'].strftime('%a %m-%d %H:%M')}  "
                   f"thumb:{thumb}  {m['title']}")
-        print(f"\nDry run — nothing scheduled. Privacy would be: {args.privacy}")
+        print(f"\nDry run — nothing scheduled. Privacy would be: {cfg.privacy}")
         return
 
-    yt = YouTubeClient.authenticate(args.client_secret.resolve(), args.token.resolve())
+    yt = YouTubeClient.authenticate(cfg.client_secret, cfg.token)
 
-    print("Resolving field streams…")
-    titles = {f: _field_stream_title(f) for f in FIELDS}
-    existing = yt.reusable_streams_by_title(list(titles.values()))
-    stream_ids = {}
-    for f in FIELDS:
-        if titles[f] in existing:
-            stream_ids[f] = existing[titles[f]]
-            print(f"  stream reuse: Field {f} -> {stream_ids[f]}")
+    playlist_id = None
+    if cfg.playlist:
+        # Accept a raw PL… id directly; otherwise look it up by title.
+        playlist_id = cfg.playlist if cfg.playlist.startswith("PL") \
+            else yt.find_playlist_id(cfg.playlist)
+        if playlist_id:
+            print(f"Playlist: adding each video to '{cfg.playlist}' ({playlist_id})")
         else:
-            stream_ids[f] = yt.create_reusable_stream(titles[f])
-            print(f"  stream create: Field {f} -> {stream_ids[f]}")
+            print(f"[warn] playlist '{cfg.playlist}' not found — videos won't be "
+                  f"added to a playlist. Create it first or set playlist = \"\".")
 
-    print("\nFetching existing broadcasts (so already-scheduled slots are skipped)…")
-    taken = yt.scheduled_start_times()
+    print("Fetching existing broadcasts and streams…")
+    existing_broadcasts = yt.list_broadcasts()
+    # reuse a match's stream by its stable title across re-runs (avoids duplicates)
+    streams_by_title = {s["title"]: s for s in yt.list_streams()}
 
-    created = skipped = 0
+    key_map = {}  # match_id -> {title, field, start, broadcast_id, stream_id, key}
+    created = already = declined = 0
     for m in plan:
-        start_iso = _to_utc_z(m["start"])
-        if start_iso in taken:
-            print(f"  skip (slot already scheduled): {m['title']}")
-            skipped += 1
+        dup = _already_scheduled(m, existing_broadcasts)
+        if dup:
+            print(f"\n  skip (already scheduled as '{dup['title']}'): {m['title']}")
+            already += 1
             continue
+
+        thumb = m["thumbnail"]
+        thumb_str = thumb.name if thumb.exists() else f"MISSING ({thumb.name})"
+        print()
+        print(f"  Title: {m['title']}")
+        print(f"  When:  {m['start'].strftime('%a %Y-%m-%d %H:%M %Z')}   [Field {m['field']}]")
+        print(f"  Thumb: {thumb_str}")
+        if not args.yes and not _confirm("  Schedule this one? [y/n] "):
+            print("  → skipped by you")
+            declined += 1
+            continue
+
+        # dedicated stream for this match (stable title so re-runs reuse, not duplicate)
+        stream_title = f"SSL {m['id']}"
+        stream = streams_by_title.get(stream_title) or yt.create_stream(stream_title)
+        streams_by_title[stream_title] = stream
+
         bid = yt.create_broadcast(
             title=m["title"], description=m["description"],
-            start=m["start"], privacy=args.privacy,
+            start=m["start"], privacy=cfg.privacy,
+            auto_start=cfg.auto_start, auto_stop=cfg.auto_stop,
         )
-        yt.bind(bid, stream_ids[m["field"]])
+        yt.bind(bid, stream["id"])
+        yt.set_video_metadata(bid, title=m["title"], description=m["description"],
+                              tags=cfg.tags, category_id=cfg.category_id)
         if m["thumbnail"].exists():
             yt.set_thumbnail(bid, m["thumbnail"])
-        taken.add(start_iso)  # guard against duplicate slots within this run too
+        if playlist_id:
+            yt.add_to_playlist(playlist_id, bid)
+        key_map[m["id"]] = {
+            "title": m["title"], "field": m["field"], "start": _to_utc_z(m["start"]),
+            "broadcast_id": bid, "stream_id": stream["id"], "key": stream["key"],
+        }
+        # track it so a duplicate match within this same run is also caught
+        existing_broadcasts.append(
+            {"id": bid, "title": m["title"], "start": _to_utc_z(m["start"])}
+        )
         created += 1
-        print(f"  created [{m['field']}]: {m['title']}  ({bid})")
+        print(f"  → created ({bid})")
 
-    print(f"\nDone. {created} created, {skipped} skipped (already scheduled).")
-    print("RTMP keys per field: yt.stream_key(<id>) or YouTube Studio — "
-          "drop each into that field's obs-template service.json.")
+    if key_map:
+        KEY_MAP_PATH.write_text(json.dumps(key_map, indent=2))
+        print(f"\nWrote {len(key_map)} match→key mappings to {KEY_MAP_PATH}")
+    print(f"\nDone. {created} created, {already} already scheduled, {declined} declined.")
+    if already:
+        print("Note: already-scheduled matches are NOT in stream_keys.json (their keys "
+              "weren't created here). Delete + reschedule them to capture their keys.")
 
 
 if __name__ == "__main__":
