@@ -55,24 +55,10 @@ install_mediamtx() {
     *) warn "unknown arch '$arch' — download MediaMTX into bin/ yourself"; return 0 ;;
   esac
 
-  local ver
-  if [ -n "${MEDIAMTX_VERSION:-}" ]; then
-    ver=$MEDIAMTX_VERSION
-  else
-    say "[..]   querying latest MediaMTX version"
-    local api
-    # Capture the whole response first — piping curl into `grep -m1` makes grep close the
-    # pipe early, which makes curl fail with "write error" (exit 23).
-    if ! api=$(curl -fsSL https://api.github.com/repos/bluenviron/mediamtx/releases/latest); then
-      warn "couldn't reach the GitHub API. Set MEDIAMTX_VERSION=vX.Y.Z and re-run, or download MediaMTX into bin/ manually."
-      return 0
-    fi
-    ver=$(printf '%s\n' "$api" | grep -m1 '"tag_name"' | sed -E 's/.*"(v[^"]+)".*/\1/' || true)
-  fi
-  if [ -z "$ver" ]; then
-    warn "could not determine the MediaMTX version. Set MEDIAMTX_VERSION=vX.Y.Z and re-run."
-    return 0
-  fi
+  # Pinned MediaMTX version — deliberately not auto-discovered. Querying the GitHub API for
+  # "latest" is rate-limited to 60 req/hr/IP and fails on shared venue networks. Bump this
+  # line when upgrading; override per-run with MEDIAMTX_VERSION=vX.Y.Z.
+  local ver="${MEDIAMTX_VERSION:-v1.19.2}"
 
   local ext=tar.gz binname=mediamtx
   if [ "$mtx_os" = windows ]; then ext=zip; binname=mediamtx.exe; fi
@@ -116,8 +102,16 @@ else
 fi
 
 # --- runtime prerequisites the deployer must have ---
-have ffmpeg && say "[ok]   ffmpeg" || say "[!!]   ffmpeg MISSING — install it (needed for USB/MPEG-TS cameras)"
-have obs    && say "[ok]   obs"    || say "[!!]   OBS not on PATH — install OBS 28+ (launched manually)"
+# These need root, so setup.sh doesn't install them (it stays sudo-free) — it reports what's
+# missing and prints the exact apt command to run.
+missing_pkgs=""
+have ffmpeg && say "[ok]   ffmpeg" || { say "[!!]   ffmpeg MISSING (needed for USB/MPEG-TS cameras)"; missing_pkgs="$missing_pkgs ffmpeg"; }
+have obs    && say "[ok]   obs"    || { say "[!!]   OBS MISSING (import the scene collection, launch manually)"; missing_pkgs="$missing_pkgs obs-studio"; }
+if [ -n "$missing_pkgs" ]; then
+  say ""
+  say "Install the missing system package(s) — run:"
+  say "    sudo apt install -y$missing_pkgs"
+fi
 
 say ""
 say "Next: cp field.toml.example field.toml, edit it, then ./run.sh"
