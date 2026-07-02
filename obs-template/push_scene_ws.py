@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["simpleobsws"]
+# ///
 """Push one scene from an OBS scene-collection JSON export into a LIVE OBS over
 obs-websocket (v5), flattening any groups into their child sources.
 
@@ -14,9 +18,10 @@ are placed directly in the target scene, their positions offset by the group's
 position. (In this collection the groups are translate-only — scale 1, no rotation —
 so the offset is exact; a scaled/rotated group would only be approximate and is warned.)
 
---dry-run prints the plan and needs no dependencies. Actually pushing needs simpleobsws
-(pip install --user simpleobsws) and the OBS WebSocket password
-(OBS -> Tools -> WebSocket Server Settings).
+Easiest way to run (no install, no sudo) — uv reads the inline deps above:
+    uv run obs-template/push_scene_ws.py --collection Untitled
+Or with plain python if simpleobsws is already available:  pip install --user simpleobsws
+--dry-run prints the plan and needs no dependencies at all.
 """
 import argparse
 import asyncio
