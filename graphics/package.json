@@ -20,6 +20,7 @@
     "render:robot": "remotion still Robot out/robot.png --frame=0",
     "render:standby": "remotion render Standby out/standby.mp4 --codec=h264 --pixel-format=yuv420p --image-format=png",
     "render:standby:preview": "remotion render Standby out/standby-preview.mp4 --codec=h264 --pixel-format=yuv420p --image-format=png --scale=0.5",
+    "render:all": "npm run render && npm run render:chase && npm run render:replay-overlay && npm run render:replay-rewind && npm run render:replay-resume && npm run render:bg && npm run render:next-match && npm run render:robot && npm run render:standby",
     "test": "vitest run"
   },
   "keywords": [],
